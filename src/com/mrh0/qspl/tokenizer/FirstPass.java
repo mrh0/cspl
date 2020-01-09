@@ -1,0 +1,274 @@
+package com.mrh0.qspl.tokenizer;
+
+import java.util.ArrayList;
+import java.util.Stack;
+
+import com.mrh0.qspl.io.console.Console;
+import com.mrh0.qspl.tokenizer.token.Token;
+import com.mrh0.qspl.tokenizer.token.TokenType;
+import com.mrh0.qspl.tokenizer.token.Tokens;;
+
+public class FirstPass {
+	
+	//Init
+	private String code;
+	private ArrayList<Token> tokens;
+	private Stack<Character> bracketBalancer;
+	
+	//Current
+	private StringBuilder ctoken;
+	private TokenType ctype;
+	private int pos;
+	private int line = 0;
+	private int lastindent = 0;
+	private int indent = 0;
+	private int statementTokenCount = 0;
+
+	public FirstPass(String code, ArrayList<Token> tokens) {
+		this.code = code;
+		this.tokens = tokens;
+		line = 1;
+		Console.g.setCurrentLine(line);
+		
+		ctoken = new StringBuilder();
+		ctype = TokenType.NONE;
+		
+		bracketBalancer = new Stack<Character>();
+		
+		//In code text:
+		this.pos = 0;
+		
+		//For comments:
+		boolean inlineComment = false;
+		boolean blockComment = false;
+		char lastc = '\0';
+		
+		char inString = '\0'; // \0:not in, ':in, ":in
+		
+		while(hasNext()) {
+			char c = next();
+			if(indent > lastindent) {
+				System.out.println("Indent");
+				tokens.add(new Token("{", TokenType.BEGIN_BLOCK));
+				lastindent = indent;
+			}
+			if(indent < lastindent && statementTokenCount > 0) {
+				System.out.println("Outdent " + (lastindent - indent));
+				for(int i = (lastindent - indent); i > 0; i--)
+					tokens.add(new Token("}", TokenType.END_BLOCK));
+				lastindent = indent;
+			}
+			
+			
+			if(c == '\r' || c == '\n') {
+				lastindent = indent;
+				indent = 0;
+				Console.g.setCurrentLine(line++);
+				end();
+				consume('\r', TokenType.LN_BRK);
+				end();
+				
+				inlineComment = false;
+				continue;
+			}
+			
+			//Check for end to inline-comments
+			if(inlineComment && c != '\r' && c != '\n')
+				continue;
+			
+			//Check for end to block-comments
+			if(blockComment) {
+				if(Tokens.isCloseComment(""+lastc+c))
+					blockComment = false;
+				lastc = c;
+				continue;
+			}
+			
+			if(inString != '\0') {
+				if(c == inString) {
+					inString = '\0';
+					end();
+					continue;
+				}
+				consume(c, TokenType.STRING);
+				continue;
+			}
+			
+			
+			if(Tokens.isWhitespace(c)) {
+				end();	
+				if(c == '\t')
+					indent++;
+				
+				continue;
+			}
+			else if(c == '\"' || c == '\'') {
+				inString = c;
+				end();
+				consume(TokenType.STRING);
+			}
+			else if(Tokens.isSeperator(c)) {
+				TokenType sept = TokenType.SEPERATOR;
+				
+				
+				//Check bracket balance:
+				if(Tokens.isOpenBracket(c)) {
+					bracketBalancer.push(c);
+					if(c != '(')
+						sept = TokenType.BEGIN_BLOCK;
+				}
+				if(Tokens.isCloseBracket(c)) {
+					if(c != ')')
+						sept = TokenType.END_BLOCK;
+					if(bracketBalancer.isEmpty())
+						error("Unexpected: '" + c + "'");
+					else {
+						char sc = ((char)bracketBalancer.pop());
+						if(sc != Tokens.getOpenBracket(c))
+							error("Expected: " + Tokens.getClosedBracket(sc));
+					}
+				}
+				end();
+				consume(c, sept);
+				end();
+				continue;
+			}
+			else if(Tokens.isOperator(c)) {
+				if(ctype != TokenType.OPERATOR)
+					end();
+				consume(c, TokenType.OPERATOR);
+				
+				String fs = ctoken.toString();
+				if(fs.length() < 2)
+					continue;
+				if(Tokens.isComment(fs.substring(fs.length() - 2))) {
+					inlineComment = true;
+					ctoken = new StringBuilder().append(fs.substring(0, fs.length() - 2));
+				}
+				else if(Tokens.isOpenComment(fs.substring(fs.length() - 2))) {
+					blockComment = true;
+					ctoken = new StringBuilder().append(fs.substring(0, fs.length() - 2));
+				}
+				continue;
+			}
+			else if(Tokens.isEndOfStatement(c)) {
+				if(ctype != TokenType.END)
+					end();
+				consume(c, TokenType.END);
+				continue;
+			}
+			/*else if(Tokens.isBeginBlock(c)) {
+				if(ctype != TokenType.BEGIN_BLOCK)
+					end();
+				consume(c, TokenType.BEGIN_BLOCK);
+				continue;
+			}*/
+			else if(ctype == TokenType.IDENTIFIER && Tokens.canBeIdentifier(c)) {
+				consume(c, TokenType.IDENTIFIER);
+				continue;
+			}
+			else if(ctype != TokenType.IDENTIFIER) {
+				if(Tokens.canBeLiteral(c)) {
+					if(ctype == TokenType.LITERAL) {
+						consume(c, TokenType.LITERAL);
+						continue;
+					}
+					else {
+						end();
+						consume(c, TokenType.LITERAL);
+						continue;
+					}
+				}
+				else if(Tokens.canBeStartOfIdentifier(c)) {
+					end();
+					consume(c, TokenType.IDENTIFIER);
+				}
+				continue;
+			}
+			
+			
+			error("Unknown char: '" + c + "'");
+		}
+		end();
+		while(!bracketBalancer.isEmpty())
+			error("Expected: '" + Tokens.getClosedBracket(bracketBalancer.pop()) + "'", "end of code.");
+	}
+	
+	//Next char:
+	private char next() {
+		return code.charAt(this.pos++);
+	}
+	
+	//Has next char:
+	private boolean hasNext() {
+		return pos < code.length();
+	}
+	
+	//Add char to token:
+	private void consume(char c, TokenType t) {
+		ctoken.append(c);
+		ctype = t;
+		if(t != TokenType.LN_BRK)
+			statementTokenCount++;
+	}
+	
+	private void consume(TokenType t) {
+		ctype = t;
+		if(t != TokenType.LN_BRK)
+			statementTokenCount++;
+	}
+	
+	//Create token:
+	private void end() {
+		String rtoken = ctoken.toString();
+		
+		//Ignore if:
+		if(rtoken.length() == 0 && ctype == TokenType.NONE)
+			return;
+		if(rtoken.length() == 0) {
+			ctype = TokenType.NONE;
+			return;
+		}
+		if(ctype == TokenType.NONE) {
+			ctoken = new StringBuilder();
+			return;
+		}
+		//Do last check on token:
+		ctype = lastCheck(rtoken);
+		tokens.add(new Token(rtoken, ctype));
+		
+		//Reset:
+		clear();
+		statementTokenCount = 0;
+	}
+	
+	private void clear() {
+		ctoken = new StringBuilder();
+		ctype = TokenType.NONE;
+	}
+	
+	//Change token properties before creating:
+	private TokenType lastCheck(String token) {
+		if(Tokens.isOpKeyword(token)) {
+			return TokenType.OP_KEYWORD;
+		}
+		else if(Tokens.isInlineKeyword(token)) {
+			return TokenType.KEYWORD;
+		}
+		else if(Tokens.isValueKeyword(token)) {
+			return TokenType.VAL_KEYWORD;
+		}
+		else if(Tokens.isTailKeyword(token)) {
+			return TokenType.TAIL_KEYWORD;
+		}
+		return ctype;
+	}
+	
+	private void error(String message) {
+		Console.g.err(message + ", Near: '" + code.substring(Math.max(pos-10, 0), Math.min(pos+10, code.length())) + "'");
+	}
+	
+	private void error(String message, String near) {
+		Console.g.err(message + ", Near: " + near);
+	}
+}
