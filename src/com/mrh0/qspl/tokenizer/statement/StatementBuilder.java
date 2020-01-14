@@ -6,15 +6,24 @@ import java.util.Stack;
 import com.mrh0.qspl.tokenizer.Block;
 import com.mrh0.qspl.tokenizer.token.Token;
 import com.mrh0.qspl.tokenizer.token.TokenType;
+import com.mrh0.qspl.tokenizer.token.TokenVal;
 import com.mrh0.qspl.tokenizer.token.Tokens;
+import com.mrh0.qspl.type.TNumber;
+import com.mrh0.qspl.type.TString;
+import com.mrh0.qspl.type.TUndefined;
+import com.mrh0.qspl.type.Val;
 
 public class StatementBuilder {
 	private Stack<Token> opStack;
 	private LinkedList<Token> postfix;
 	private LinkedList<Statement> block;
+	private TokenType blockType;
+	private boolean terminatesStatement = false;
 	
-	public StatementBuilder() {
+	public StatementBuilder(TokenType blocktype, boolean terminates) {
 		block = new LinkedList<Statement>();
+		blockType = blocktype;
+		this.terminatesStatement = terminates;
 		reset();
 	}
 	
@@ -23,7 +32,7 @@ public class StatementBuilder {
 			postfix.add(opStack.pop());
 		}
 		if(postfix.size() > 0)
-			block.add(new Statement(postfix));//optimized()
+			block.add(new Statement(optimized()));//optimized() //postfix
 		reset();
 	}
 	
@@ -36,15 +45,21 @@ public class StatementBuilder {
 		TokenType t = cur.getType();
 		String s = cur.getToken();
 		
-		
-		if(t == TokenType.IDENTIFIER || t == TokenType.LITERAL || t == TokenType.VAL_KEYWORD || t == TokenType.KEYWORD || t == TokenType.STRING)
+		if(t == TokenType.IDENTIFIER  || t == TokenType.VAL_KEYWORD || t == TokenType.KEYWORD
+				|| t == TokenType.ACCESSOR_BLOCK || t == TokenType.OBJ_BLOCK || t == TokenType.ARY_BLOCK || t == TokenType.CODE_BLOCK)
 			postfix.add(cur);
-		else if(t == TokenType.SEPERATOR) { //Potentially remove
-			if(s.equals("(")) //Potentially move down
+		else if(t == TokenType.LITERAL) {
+			postfix.add(new TokenVal(cur.getToken(), cur.getType(), new TNumber(cur.getToken())));
+		}
+		else if(t == TokenType.STRING) {
+			postfix.add(new TokenVal(cur.getToken(), cur.getType(), new TString(cur.getToken())));
+		}
+		else if(t == TokenType.SEPERATOR) {
+			if(s.equals("("))
 				opStack.add(cur);
 			else if(s.equals(")")) {
 				Token top = opStack.pop();
-				while(top.getToken().charAt(0) != '(') {
+				while(!top.getToken().equals("(")) {
 					postfix.add(top);
 					top = opStack.pop();
 				}
@@ -53,14 +68,7 @@ public class StatementBuilder {
 				postfix.add(cur);
 			}
 		}
-		/*else if(t == TokenType.END) {
-			while(!opStack.isEmpty()) {
-				postfix.add(opStack.pop());
-			}
-			postfix.add(cur);
-		}*/
 		else {
-			//System.out.print("["+s + ":" + t.getName()+"]");
 			while(!opStack.isEmpty() && Tokens.opValue(opStack.peek().getToken(), opStack.peek().getType()) >= Tokens.opValue(s, t)) {
 				postfix.add(opStack.pop());
 			}
@@ -68,24 +76,72 @@ public class StatementBuilder {
 		}
 	}
 	
-	public Block makeBlock(TokenType blockType) {
-		return new Block(block, blockType);
+	public Block makeBlock() {
+		return new Block(block);
+	}
+	
+	public boolean terminates() {
+		return terminatesStatement;
 	}
 	
 	public LinkedList<Token> optimized(){
 		Stack<Token> ostack = new Stack<Token>();
 		LinkedList<Token> opti = new LinkedList<Token>();
 		for(int i = 0; i < postfix.size(); i++) {
-			if(postfix.get(i).getType() == TokenType.OPERATOR) {
+			if(postfix.get(i).getType() == TokenType.OPERATOR && !postfix.get(i).getToken().equals("=")) {
 				String result = "0";
-				//If op arguments are literals/strings, do op;
-				ostack.push(new Token(result, TokenType.LITERAL));
+				
+				Token rv = ostack.pop();
+				Token lv = ostack.pop();
+				if((lv.getType() == TokenType.LITERAL || lv.getType() == TokenType.STRING) && (rv.getType() == TokenType.LITERAL || rv.getType() == TokenType.STRING)) {
+					Val r = TUndefined.getInstance();
+					TokenType t = TokenType.LITERAL;
+					if(!(rv instanceof TokenVal))
+						System.err.println("failed optimize: " + lv + postfix.get(i) +" "+ rv);
+					if(!(lv instanceof TokenVal))
+						System.err.println("failed optimize: " + lv + postfix.get(i) +" "+ rv);
+					
+					Val rvv = ((TokenVal)rv).getValue();
+					Val lvv = ((TokenVal)lv).getValue();
+					switch(postfix.get(i).getToken()) {
+						case "+":
+							r = lvv.add(rvv);
+							if(r.isString())
+								t = TokenType.STRING;
+							break;
+						case "-":
+							r = lvv.sub(rvv);
+							break;
+						case "*":
+							r = lvv.multi(rvv);
+							break;
+						case "/":
+							r = lvv.div(rvv);
+							break;
+						case "%":
+							r = lvv.mod(rvv);
+							break;
+						default:
+							System.err.println("failed optimize: " + postfix.get(i));
+							break;
+					}
+					ostack.push(new TokenVal(result, t, r));
+				}
+				else {
+					ostack.push(lv);
+					ostack.push(rv);
+					ostack.push(postfix.get(i));
+				}
 			}
 			else
 				ostack.push(postfix.get(i));
 		}
 		while(!ostack.isEmpty())
-			opti.add(ostack.pop());
+			opti.add(0, ostack.pop());
 		return opti; 
+	}
+	
+	public TokenType getBlockType() {
+		return blockType;
 	}
 }

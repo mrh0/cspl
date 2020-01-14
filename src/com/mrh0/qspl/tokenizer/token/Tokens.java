@@ -100,11 +100,10 @@ public class Tokens {
 	}
 	
 	public static boolean isEndOfStatement(char c) {
-		return c == ';' || c == ':';
+		return c == ';';
 	}
 	
-	@Deprecated
-	public static boolean isBeginBlock(char c) {
+	public static boolean isAppendBlock(char c) {
 		return c == ':';
 	}
 	

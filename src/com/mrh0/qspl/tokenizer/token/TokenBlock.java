@@ -17,7 +17,14 @@ public class TokenBlock extends Token{
 
 	@Override
 	public String toString() {
-		
-		return (block.getType()==TokenType.ARY_BLOCK?"*[":"*{")+block.toString()+(block.getType()==TokenType.ARY_BLOCK?"]":"}");
+		switch(getType()) {
+			case ACCESSOR_BLOCK:
+				return "^["+block.toString()+"]^";
+			case OBJ_BLOCK:
+				return "¤{"+block.toString()+"}¤";
+			case ARY_BLOCK:
+				return "¤["+block.toString()+"]¤";
+		}
+		return "{"+block.toString()+"}";
 	}
 }

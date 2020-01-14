@@ -48,12 +48,12 @@ public class FirstPass {
 		while(hasNext()) {
 			char c = next();
 			if(indent > lastindent) {
-				System.out.println("Indent");
+				//System.out.println("Indent");
 				tokens.add(new Token("{", TokenType.BEGIN_BLOCK));
 				lastindent = indent;
 			}
 			if(indent < lastindent && statementTokenCount > 0) {
-				System.out.println("Outdent " + (lastindent - indent));
+				//System.out.println("Outdent " + (lastindent - indent));
 				for(int i = (lastindent - indent); i > 0; i--)
 					tokens.add(new Token("}", TokenType.END_BLOCK));
 				lastindent = indent;
@@ -106,6 +106,7 @@ public class FirstPass {
 				inString = c;
 				end();
 				consume(TokenType.STRING);
+				continue;
 			}
 			else if(Tokens.isSeperator(c)) {
 				TokenType sept = TokenType.SEPERATOR;
@@ -157,12 +158,12 @@ public class FirstPass {
 				consume(c, TokenType.END);
 				continue;
 			}
-			/*else if(Tokens.isBeginBlock(c)) {
-				if(ctype != TokenType.BEGIN_BLOCK)
+			else if(Tokens.isAppendBlock(c)) {
+				if(ctype != TokenType.APPEND)
 					end();
-				consume(c, TokenType.BEGIN_BLOCK);
+				consume(c, TokenType.APPEND);
 				continue;
-			}*/
+			}
 			else if(ctype == TokenType.IDENTIFIER && Tokens.canBeIdentifier(c)) {
 				consume(c, TokenType.IDENTIFIER);
 				continue;

@@ -8,19 +8,13 @@ import com.mrh0.qspl.util.StringUtil;
 
 public class Block {
 	private Statement[] statements;
-	private TokenType blockType;
 	
-	public Block(List<Statement> a, TokenType blockType) {
+	public Block(List<Statement> a) {
 		statements = a.toArray(new Statement[0]);
-		this.blockType = blockType;
 	}
 	
 	public Statement[] getStatements() {
 		return statements;
-	}
-	
-	public TokenType getType() {
-		return blockType;
 	}
 	
 	@Override

@@ -22,6 +22,10 @@ public class Token {
 		return token;
 	}
 	
+	public void setType(TokenType type) {
+		this.type = type;
+	}
+	
 	public boolean isOperator() {
 		return type == TokenType.OPERATOR;
 	}

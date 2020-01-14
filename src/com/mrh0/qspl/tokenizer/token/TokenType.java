@@ -8,16 +8,18 @@ public enum TokenType {
 	CODE_BLOCK(3, "c_b"),
 	OBJ_BLOCK(4, "o_b"),
 	ARY_BLOCK(5, "a_b"),
-	IDENTIFIER(6, "id"),
-	LITERAL(7, "lt"),
-	OPERATOR(8, "op"),
-	SEPERATOR(9, "sep"),
-	STRING(10, "str"),
-	NONE(11, "na"),
-	LN_BRK(12, "ln_brk"), //Line break
-	END(13, "end"),
-	BEGIN_BLOCK(14, "b_blk"),
-	END_BLOCK(15, "e_blk");
+	ACCESSOR_BLOCK(6, "acc_b"),
+	IDENTIFIER(7, "id"),
+	LITERAL(8, "lt"),
+	OPERATOR(9, "op"),
+	SEPERATOR(10, "sep"),
+	STRING(11, "str"),
+	NONE(12, "na"),
+	LN_BRK(13, "ln_brk"), //Line break
+	END(14, "end"),
+	BEGIN_BLOCK(15, "b_blk"),
+	END_BLOCK(16, "e_blk"),
+	APPEND(17, "app");
 	
 	private int id;
 	private String name;

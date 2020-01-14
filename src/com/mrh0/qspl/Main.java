@@ -6,10 +6,12 @@ import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.io.file.Read;
 import com.mrh0.qspl.tokenizer.Tokenizer;
 import com.mrh0.qspl.tokenizer.token.Token;
+import com.mrh0.qspl.type.TNumber;
 
 public class Main {
 
 	public static void main(String[] args) {
+		new TNumber();
 		new Console().setGlobal();
 		Tokenizer t = new Tokenizer();
 		t.insertCode(Read.fromFile("C:\\MRHLang\\qspl4.qs"));
