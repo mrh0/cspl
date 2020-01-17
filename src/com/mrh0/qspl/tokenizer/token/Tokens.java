@@ -205,6 +205,8 @@ public class Tokens {
 				return 25;
 			case OBJ_BLOCK:
 				return 25;
+			case APPEND:
+				return 50;
 		}
 		
 		switch(s) {

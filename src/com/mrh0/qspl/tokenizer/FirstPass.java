@@ -23,6 +23,8 @@ public class FirstPass {
 	private int lastindent = 0;
 	private int indent = 0;
 	private int statementTokenCount = 0;
+	
+	private Stack<Boolean> indentStack;
 
 	public FirstPass(String code, ArrayList<Token> tokens) {
 		this.code = code;
@@ -34,6 +36,7 @@ public class FirstPass {
 		ctype = TokenType.NONE;
 		
 		bracketBalancer = new Stack<Character>();
+		indentStack = new Stack<Boolean>();
 		
 		//In code text:
 		this.pos = 0;
@@ -47,15 +50,20 @@ public class FirstPass {
 		
 		while(hasNext()) {
 			char c = next();
-			if(indent > lastindent) {
-				//System.out.println("Indent");
+			/*if(indent > lastindent) {
+				System.out.println("Indent");
 				tokens.add(new Token("{", TokenType.BEGIN_BLOCK));
 				lastindent = indent;
-			}
-			if(indent < lastindent && statementTokenCount > 0) {
-				//System.out.println("Outdent " + (lastindent - indent));
-				for(int i = (lastindent - indent); i > 0; i--)
+			}*/
+			if(indent < lastindent && ctype != TokenType.NONE) {
+				System.out.println("Outdent " + (lastindent - indent));
+				for(int i = (lastindent - indent); i > 0; i--) {
 					tokens.add(new Token("}", TokenType.END_BLOCK));
+					if(indentStack.pop()) {
+						System.out.println("Add ;");
+						tokens.add(new Token(";", TokenType.END));
+					}
+				}
 				lastindent = indent;
 			}
 			
@@ -99,7 +107,6 @@ public class FirstPass {
 				end();	
 				if(c == '\t')
 					indent++;
-				
 				continue;
 			}
 			else if(c == '\"' || c == '\'') {
@@ -115,6 +122,7 @@ public class FirstPass {
 				//Check bracket balance:
 				if(Tokens.isOpenBracket(c)) {
 					bracketBalancer.push(c);
+					indentStack.push(false);
 					if(c != '(')
 						sept = TokenType.BEGIN_BLOCK;
 				}
@@ -124,6 +132,7 @@ public class FirstPass {
 					if(bracketBalancer.isEmpty())
 						error("Unexpected: '" + c + "'");
 					else {
+						indentStack.pop();
 						char sc = ((char)bracketBalancer.pop());
 						if(sc != Tokens.getOpenBracket(c))
 							error("Expected: " + Tokens.getClosedBracket(sc));
@@ -234,6 +243,18 @@ public class FirstPass {
 			ctoken = new StringBuilder();
 			return;
 		}
+		if(ctype == TokenType.APPEND) {
+			tokens.add(new Token(rtoken, ctype));
+			System.out.println("Indent");
+			tokens.add(new Token("{", TokenType.BEGIN_BLOCK));
+			lastindent = indent;
+			indentStack.push(true);
+			
+			clear();
+			statementTokenCount = 0;
+			return;
+		}
+		
 		//Do last check on token:
 		ctype = lastCheck(rtoken);
 		tokens.add(new Token(rtoken, ctype));

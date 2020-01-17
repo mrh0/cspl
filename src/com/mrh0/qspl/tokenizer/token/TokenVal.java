@@ -19,4 +19,9 @@ public class TokenVal extends Token{
 	public String toString() {
 		return this.getType()==TokenType.STRING?"'"+value.toString()+"' ":value.toString();
 	}
+	
+	@Override
+	public boolean hasValue() {
+		return true;
+	}
 }

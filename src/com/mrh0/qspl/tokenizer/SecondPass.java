@@ -37,12 +37,13 @@ public class SecondPass {
 						continue;
 					case "func":
 						funcCall = true;
-						continue;
+						break;
 				}
 			}
 			else if(t == TokenType.APPEND) {
 				append = true;
 				System.out.println("Append!");
+				stmts.feed(cur);
 				continue;
 			}
 			else if(t == TokenType.SEPERATOR) {
@@ -86,10 +87,6 @@ public class SecondPass {
 			else if(t == TokenType.END_BLOCK) {
 				stmts.finishStatement();
 				TokenBlock tb = stmts.pop();
-				if(stmts.didLastTerminate()) {
-					System.out.println("Term: "+tb);
-					//stmts.finishStatement();
-				}
 				
 				end();
 				continue;

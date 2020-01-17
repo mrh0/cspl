@@ -1,5 +1,8 @@
 package com.mrh0.qspl.tokenizer.token;
 
+import com.mrh0.qspl.type.TUndefined;
+import com.mrh0.qspl.type.Val;
+
 public class Token {
 	private String token;
 	private TokenType type;
@@ -34,12 +37,24 @@ public class Token {
 		return type == TokenType.LITERAL;
 	}
 	
+	public boolean isString() {
+		return type == TokenType.STRING;
+	}
+	
 	public boolean isSeperator() {
 		return type == TokenType.SEPERATOR;
 	}
 	
 	public boolean isIdentifier() {
 		return type == TokenType.IDENTIFIER;
+	}
+	
+	public boolean isBlock() {
+		return this instanceof TokenBlock;
+	}
+	
+	public boolean hasValue() {
+		return this instanceof TokenVal;
 	}
 	
 	public boolean hasBlock() {
