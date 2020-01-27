@@ -95,7 +95,7 @@ public class SecondPass {
 			stmts.feed(cur);
 		}
 		
-		System.out.println("sp: "+get().toString());
+		
 	}
 	
 	private void end() {
@@ -104,10 +104,11 @@ public class SecondPass {
 		append = false;
 	}
 	
-	public Block get() {
-		Block b = null;
+	public TokenBlock get() {
+		TokenBlock b = null;
 		while(!stmts.isEmpty())
-			b = stmts.pop().getBlock();
+			b = stmts.pop();
+		System.out.println("sp: "+b.toString());
 		return b;
 	}
 }

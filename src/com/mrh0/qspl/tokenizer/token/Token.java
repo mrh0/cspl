@@ -49,6 +49,22 @@ public class Token {
 		return type == TokenType.IDENTIFIER;
 	}
 	
+	public boolean isKeyword() {
+		return type == TokenType.KEYWORD;
+	}
+	
+	public boolean isOpKeyword() {
+		return type == TokenType.OP_KEYWORD;
+	}
+	
+	public boolean isTailKeyword() {
+		return type == TokenType.TAIL_KEYWORD;
+	}
+	
+	public boolean isValKeyword() {
+		return type == TokenType.VAL_KEYWORD;
+	}
+	
 	public boolean isBlock() {
 		return this instanceof TokenBlock;
 	}

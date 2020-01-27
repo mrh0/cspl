@@ -108,6 +108,13 @@ public class TNumber implements Val{
 	public static TNumber from(Val v) {
 		if(v instanceof TNumber)
 			return (TNumber)v;
+		if(v instanceof Var && v.isNumber())
+			return from(((Var)v).get());
 		return null;
+	}
+
+	@Override
+	public Object getValue() {
+		return value;
 	}
 }

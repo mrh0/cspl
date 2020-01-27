@@ -44,4 +44,9 @@ public class TUndefined implements Val{
 			return new TUndefined();
 		return instance;
 	}
+
+	@Override
+	public Object getValue() {
+		return null;
+	}
 }

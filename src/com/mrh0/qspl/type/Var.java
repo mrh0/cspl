@@ -3,6 +3,17 @@ package com.mrh0.qspl.type;
 public class Var implements Val{
 	
 	private Val value;
+	private String name;
+
+	public Var(String name, Val value) {
+		this.name = name;
+		this.value = value;
+	}
+	
+	@Override
+	public String toString() {
+		return "var("+name+": "+value+")";
+	}
 
 	@Override
 	public int getType() {
@@ -18,6 +29,31 @@ public class Var implements Val{
 	public boolean booleanValue() {
 		return value.booleanValue();
 	}
+	
+	@Override
+	public boolean isArray() {
+		return value.isArray();
+	}
+	
+	@Override
+	public boolean isFunction() {
+		return value.isFunction();
+	}
+	
+	@Override
+	public boolean isNumber() {
+		return value.isNumber();
+	}
+	
+	@Override
+	public boolean isObject() {
+		return value.isObject();
+	}
+	
+	@Override
+	public boolean isString() {
+		return value.isString();
+	}
 
 	@Override
 	public boolean isUndefined() {
@@ -31,7 +67,7 @@ public class Var implements Val{
 	
 	@Override
 	public String getTypeName() {
-		return "var("+value.getTypeName()+")";
+		return "var("+name+": "+value.getTypeName()+")";
 	}
 	
 	@Override
@@ -75,5 +111,25 @@ public class Var implements Val{
 	
 	public Val get() {
 		return value;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
+	@Override
+	public Val assign(Val v) {
+		System.out.println("Assigning: " + v + " to: " + this);
+		if(v.isVariable()) {
+			value = ((Var)v).get();
+			return this;
+		}
+		value = v;
+		return this;
+	}
+
+	@Override
+	public Object getValue() {
+		return value.getValue();
 	}
 }

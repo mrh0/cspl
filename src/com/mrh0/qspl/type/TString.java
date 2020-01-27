@@ -59,4 +59,9 @@ public class TString implements Val{
 		return value;
 	}
 
+	@Override
+	public Object getValue() {
+		return value;
+	}
+
 }

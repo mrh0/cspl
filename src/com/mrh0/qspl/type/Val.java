@@ -7,6 +7,7 @@ public interface Val {
 	public Val duplicate();
 	public boolean booleanValue();
 	public String getTypeName();
+	public Object getValue();
 	
 	//Defaults:
 	public default boolean isUndefined() {
@@ -65,6 +66,11 @@ public interface Val {
 	}
 	public default Val decrement(Val v) {
 		Console.g.err("Cannot preform operation decrement on " + this.getTypeName() + " with " + v.getTypeName());
+		return TUndefined.getInstance();
+	}
+	
+	public default Val assign(Val v) {
+		Console.g.err("Cannot preform operation assign on " + this.getTypeName() + " with " + v.getTypeName());
 		return TUndefined.getInstance();
 	}
 }
