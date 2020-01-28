@@ -6,7 +6,9 @@ import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.tokenizer.statement.Statement;
 import com.mrh0.qspl.tokenizer.token.Token;
 import com.mrh0.qspl.tokenizer.token.TokenBlock;
+import com.mrh0.qspl.tokenizer.token.TokenType;
 import com.mrh0.qspl.tokenizer.token.TokenVal;
+import com.mrh0.qspl.type.TContainer;
 import com.mrh0.qspl.type.TNumber;
 import com.mrh0.qspl.type.TString;
 import com.mrh0.qspl.type.TUndefined;
@@ -18,17 +20,32 @@ public class StatementEval {
 	private Statement s;
 	private Stack<Val> vals;
 	private VM vm;
+	private BlockType bt;
+	
+	private enum BlockType {
+		CODE, ARRAY, OBJECT, CONTAINER, ACCESSOR
+	}
+	
+	public  StatementEval(Statement s, VM vm, BlockType bt) {
+		this.s = s;
+		this.vals = new Stack<Val>();
+		this.vm = vm;
+		this.bt  = bt;
+	}
 	
 	public  StatementEval(Statement s, VM vm) {
 		this.s = s;
 		this.vals = new Stack<Val>();
 		this.vm = vm;
+		this.bt  = BlockType.CODE;
 	}
 	
 	public EvalResult eval() {
 		for(int i = 0; i < s.length(); i++) {
 			Token t = s.getToken(i);
+			Console.g.setCurrentLine(t.getLine());
 			Val hl;
+			Val vl;
 			if(t.isOperator()) {
 				switch(t.getToken()) {
 				case "+":
@@ -51,10 +68,22 @@ public class StatementEval {
 					hl = vals.pop();
 					vals.push(vals.pop().mod(hl));
 					break;
+				case "++":
+					vals.push(vals.pop().increment(new TNumber(1)));
+					break;
+				case "--":
+					vals.push(vals.pop().decrement(new TNumber(1)));
+					break;
 				case "=":
+					
+						
 					hl = vals.pop();
-					vals.push(vals.pop().assign(hl));
-					System.out.println("Assigned: " + (Var)vals.peek());
+					if(bt == BlockType.CODE)
+						vl = vals.pop();
+					else
+						vl = vals.pop().duplicate();
+					vals.push(vl.assign(hl));
+					//System.out.println("Assigned: " + (Var)vals.peek());
 					break;
 				default:
 					System.err.println("Unknown op: " + t.getToken());
@@ -62,7 +91,10 @@ public class StatementEval {
 				}
 			}
 			else if(t.isBlock()) {
-				vals.push(evalBlock((TokenBlock)t, vm).getResult());
+				if(t.getType() == TokenType.CODE_BLOCK)
+					vals.push(evalBlock((TokenBlock)t, vm).getResult());
+				else if(t.getType() == TokenType.ARY_BLOCK)
+					vals.push(evalContainerBlock((TokenBlock)t, vm).getResult());
 			}
 			else if(t.hasValue()) {
 				vals.push(((TokenVal)t).getValue());
@@ -75,17 +107,18 @@ public class StatementEval {
 			}
 			else if(t.isIdentifier()) {
 				Var var = vm.getVariable(t.getToken());
-				System.out.println("pushed: " + var);
+				//System.out.println("pushed: " + var);
 				vals.push(var);
 			}
 			else if(t.isTailKeyword())
 				Console.g.log(vals.isEmpty()?TUndefined.getInstance():vals.peek().getValue());
 		}
 		// With statement result:
-		if(!vals.isEmpty()) {
+		if(!vals.isEmpty() && bt == BlockType.CODE) {
 			Val v = vals.peek();
-			if(v.isVariable())
+			if(v.isVariable()) {
 				vm.setVariable((Var)v);
+			}
 		}
 		return new EvalResult(vals.isEmpty()?TUndefined.getInstance():vals.pop());
 	}
@@ -96,11 +129,11 @@ public class StatementEval {
 	
 	public static EvalResult evalCodeBlock(TokenBlock b, VM vm) {
 		Statement[] l = b.getBlock().getStatements();
-		EvalResult r;
+		EvalResult r = new EvalResult(TUndefined.getInstance());
 		for(int i = 0; i < l.length; i++) {
 			r = new StatementEval(l[i], vm).eval();
 		}
-		return new EvalResult(TUndefined.getInstance());
+		return new EvalResult(r.getResult());
 	}
 	
 	public static EvalResult evalObjectBlock(TokenBlock b, VM vm) {
@@ -109,5 +142,23 @@ public class StatementEval {
 			
 		}
 		return new EvalResult(TUndefined.getInstance());
+	}
+	
+	public static EvalResult evalContainerBlock(TokenBlock b, VM vm) {
+		Statement[] l = b.getBlock().getStatements();
+		TContainer c = new TContainer();
+		for(int i = 0; i < l.length; i++) {
+			c.add(new StatementEval(l[i], vm, BlockType.CONTAINER).eval().getResult());
+		}
+		return new EvalResult(c);
+	}
+	
+	public static EvalResult evalAccessorBlock(TokenBlock b, VM vm, Val toAccess) {
+		Statement[] l = b.getBlock().getStatements();
+		TContainer c = new TContainer();
+		for(int i = 0; i < l.length; i++) {
+			c.add(new StatementEval(l[i], vm, BlockType.CONTAINER).eval().getResult());
+		}
+		return new EvalResult(c);
 	}
 }

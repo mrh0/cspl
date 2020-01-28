@@ -6,8 +6,8 @@ public class TokenBlock extends Token{
 
 	private Block block;
 	
-	public TokenBlock(TokenType type, Block block) {
-		super("%%BLK%%", type);
+	public TokenBlock(TokenType type, Block block, int line) {
+		super("%%BLK%%", type, line);
 		this.block = block;
 	}
 	

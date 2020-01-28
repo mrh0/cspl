@@ -49,15 +49,21 @@ public class Scope {
 	}
 	
 	public Var setVar(Var v) {
-		System.out.println("Defining: " + v.getName() + ": " + v.get());
+		//System.out.println("Defining: " + v.getName() + ": " + v.get());
 		variables.put(v.getName(), v);
 		return v;
 	}
 	
 	public Var getVar(String name) {
-		if(!hasVar(name))
+		//if(!hasVar(name))
+		//	setVar(new Var(name, TUndefined.getInstance()));
+		return variables.getOrDefault(name, new Var(name, TUndefined.getInstance()));
+	}
+	
+	public Var getVar(String name, boolean def) {
+		if(!hasVar(name) && def)
 			setVar(new Var(name, TUndefined.getInstance()));
-		return variables.get(name);
+		return variables.getOrDefault(name, new Var(name, TUndefined.getInstance()));
 	}
 	
 	public boolean hasVar(String name) {

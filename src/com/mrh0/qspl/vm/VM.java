@@ -30,7 +30,7 @@ public class VM {
 			if(s.getPolicy() == Policy.DontReadDown)
 				return s.getVar(name);
 			if(s.hasVar(name)) {
-				System.out.println(name + " is Defined");
+				//System.out.println(name + " is Defined");
 				return s.getVar(name);
 			}
 		}
@@ -39,8 +39,25 @@ public class VM {
 		return s.getVar(name);
 	}
 	
+	public Var defVariable(String name) {
+		ListIterator<Scope> it = scopeStack.listIterator(scopeStack.size());
+		Scope s = null;
+		while(it.hasPrevious()) {
+			s = it.previous();
+			if(s.getPolicy() == Policy.DontReadDown)
+				return s.getVar(name, true);
+			if(s.hasVar(name)) {
+				//System.out.println(name + " is Defined");
+				return s.getVar(name, true);
+			}
+		}
+		if(s == null)
+			Console.g.err("Empty scope stack!");
+		return s.getVar(name, true);
+	}
+	
 	public Var setVariable(Var var) {
-		Var v = getVariable(var.getName());
+		Var v = defVariable(var.getName());
 		v.assign(var.get());
 		return v;
 	}

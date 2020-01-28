@@ -1,15 +1,14 @@
 package com.mrh0.qspl.tokenizer.token;
 
-import com.mrh0.qspl.type.TUndefined;
-import com.mrh0.qspl.type.Val;
-
 public class Token {
 	private String token;
 	private TokenType type;
+	private int line;
 	
-	public Token(String token, TokenType type) {
+	public Token(String token, TokenType type, int line) {
 		this.token = token;
 		this.type = type;
+		this.line = line;
 	}
 	
 	@Override
@@ -75,5 +74,9 @@ public class Token {
 	
 	public boolean hasBlock() {
 		return false;
+	}
+	
+	public int getLine() {
+		return line;
 	}
 }

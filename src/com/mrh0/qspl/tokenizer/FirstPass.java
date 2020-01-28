@@ -58,10 +58,10 @@ public class FirstPass {
 			if(indent < lastindent && ctype != TokenType.NONE) {
 				System.out.println("Outdent " + (lastindent - indent));
 				for(int i = (lastindent - indent); i > 0; i--) {
-					tokens.add(new Token("}", TokenType.END_BLOCK));
+					tokens.add(new Token("}", TokenType.END_BLOCK, line));
 					if(indentStack.pop()) {
 						System.out.println("Add ;");
-						tokens.add(new Token(";", TokenType.END));
+						tokens.add(new Token(";", TokenType.END, line));
 					}
 				}
 				lastindent = indent;
@@ -184,6 +184,10 @@ public class FirstPass {
 						continue;
 					}
 					else {
+						/*if(ctoken.toString().equals("-")) {
+							consume(c, TokenType.LITERAL);
+							continue;
+						}*/
 						end();
 						consume(c, TokenType.LITERAL);
 						continue;
@@ -195,6 +199,7 @@ public class FirstPass {
 				}
 				continue;
 			}
+			
 			
 			
 			error("Unknown char: '" + c + "'");
@@ -244,9 +249,9 @@ public class FirstPass {
 			return;
 		}
 		if(ctype == TokenType.APPEND) {
-			tokens.add(new Token(rtoken, ctype));
+			tokens.add(new Token(rtoken, ctype, line));
 			System.out.println("Indent");
-			tokens.add(new Token("{", TokenType.BEGIN_BLOCK));
+			tokens.add(new Token("{", TokenType.BEGIN_BLOCK, line));
 			lastindent = indent;
 			indentStack.push(true);
 			
@@ -257,7 +262,7 @@ public class FirstPass {
 		
 		//Do last check on token:
 		ctype = lastCheck(rtoken);
-		tokens.add(new Token(rtoken, ctype));
+		tokens.add(new Token(rtoken, ctype, line));
 		
 		//Reset:
 		clear();

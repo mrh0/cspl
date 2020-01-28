@@ -16,7 +16,7 @@ public class TUndefined implements Val{
 
 	@Override
 	public Val duplicate() {
-		return null;
+		return TUndefined.getInstance();
 	}
 
 	@Override
@@ -47,6 +47,6 @@ public class TUndefined implements Val{
 
 	@Override
 	public Object getValue() {
-		return null;
+		return "undefined";
 	}
 }

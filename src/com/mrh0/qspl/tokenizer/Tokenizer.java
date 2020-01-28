@@ -25,6 +25,7 @@ public class Tokenizer {
 		tokens = new ArrayList<Token>();
 		
 		new FirstPass(code, tokens);
+		System.out.println(tokens.toString());
 		return new SecondPass(tokens).get();
 	}
 	

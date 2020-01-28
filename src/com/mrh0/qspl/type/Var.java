@@ -22,7 +22,7 @@ public class Var implements Val{
 
 	@Override
 	public Val duplicate() {
-		return value.duplicate();
+		return new Var(name, value.duplicate());
 	}
 
 	@Override
@@ -77,7 +77,7 @@ public class Var implements Val{
 	
 	@Override
 	public Val sub(Val v) {
-		return Val.super.sub(v);
+		return value.sub(v);
 	}
 	
 	@Override
@@ -99,14 +99,14 @@ public class Var implements Val{
 	public Val increment(Val v) {
 		if(!value.isNumber())
 			return TUndefined.getInstance();
-		return value.add(new TNumber(1));
+		return value = value.add(v);
 	}
 	
 	@Override
 	public Val decrement(Val v) {
 		if(!value.isNumber())
 			return TUndefined.getInstance();
-		return value.sub(new TNumber(1));
+		return value = value.sub(v);
 	}
 	
 	public Val get() {
@@ -119,7 +119,7 @@ public class Var implements Val{
 	
 	@Override
 	public Val assign(Val v) {
-		System.out.println("Assigning: " + v + " to: " + this);
+		//System.out.println("Assigning: " + v + " to: " + this);
 		if(v.isVariable()) {
 			value = ((Var)v).get();
 			return this;

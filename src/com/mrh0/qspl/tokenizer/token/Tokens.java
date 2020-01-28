@@ -199,6 +199,8 @@ public class Tokens {
 		switch(t) {
 			case OP_KEYWORD:
 				return 20;
+			case TAIL_KEYWORD:
+				return -50;
 			case CODE_BLOCK:
 				return 25;
 			case ARY_BLOCK:
@@ -210,6 +212,9 @@ public class Tokens {
 		}
 		
 		switch(s) {
+			case "(":
+				return -100;
+				
 			case "++":
 				return 11;
 			case "--":
@@ -262,9 +267,6 @@ public class Tokens {
 				return 3;
 			case "||":
 				return 2;
-			
-			case "(":
-				return 1;
 			
 			case "=":
 				return 0;

@@ -73,4 +73,18 @@ public interface Val {
 		Console.g.err("Cannot preform operation assign on " + this.getTypeName() + " with " + v.getTypeName());
 		return TUndefined.getInstance();
 	}
+	
+	public default Val accessor() {
+		return accessor(new Val[0]);
+	}
+	
+	public default Val accessor(Val arg0) {
+		Val[] a = {arg0};
+		return accessor(a) ;
+	}
+	
+	public default Val accessor(Val...args) {
+		Console.g.err("Cannot preform operation accessor with " + args.length + (args.length==1?" argument on ":" arguments on ") + this.getTypeName());
+		return TUndefined.getInstance();
+	}
 }

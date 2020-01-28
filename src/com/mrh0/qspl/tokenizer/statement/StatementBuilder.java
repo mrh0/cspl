@@ -3,6 +3,7 @@ package com.mrh0.qspl.tokenizer.statement;
 import java.util.LinkedList;
 import java.util.Stack;
 
+import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.tokenizer.Block;
 import com.mrh0.qspl.tokenizer.token.Token;
 import com.mrh0.qspl.tokenizer.token.TokenType;
@@ -49,10 +50,10 @@ public class StatementBuilder {
 				|| t == TokenType.ACCESSOR_BLOCK || t == TokenType.OBJ_BLOCK || t == TokenType.ARY_BLOCK || t == TokenType.CODE_BLOCK)
 			postfix.add(cur);
 		else if(t == TokenType.LITERAL) {
-			postfix.add(new TokenVal(cur.getToken(), cur.getType(), new TNumber(cur.getToken())));
+			postfix.add(new TokenVal(cur.getToken(), cur.getType(), new TNumber(cur.getToken()), cur.getLine()));
 		}
 		else if(t == TokenType.STRING) {
-			postfix.add(new TokenVal(cur.getToken(), cur.getType(), new TString(cur.getToken())));
+			postfix.add(new TokenVal(cur.getToken(), cur.getType(), new TString(cur.getToken()), cur.getLine()));
 		}
 		else if(t == TokenType.SEPERATOR) {
 			if(s.equals("("))
@@ -61,7 +62,13 @@ public class StatementBuilder {
 				Token top = opStack.pop();
 				while(!top.getToken().equals("(")) {
 					postfix.add(top);
-					top = opStack.pop();
+					try {
+						top = opStack.pop();
+					}
+					catch(Exception e) {
+						Console.g.err("Parentheses priority error (probably).");
+						e.printStackTrace();
+					}
 				}
 			}
 			else {
@@ -89,17 +96,19 @@ public class StatementBuilder {
 		LinkedList<Token> opti = new LinkedList<Token>();
 		for(int i = 0; i < postfix.size(); i++) {
 			if(postfix.get(i).getType() == TokenType.OPERATOR && !postfix.get(i).getToken().equals("=")) {
-				String result = "0";
-				
 				Token rv = ostack.pop();
-				Token lv = ostack.pop();
+				Token lv;
+				if(ostack.isEmpty())
+					lv = new TokenVal("0", TokenType.LITERAL, new TNumber(), rv.getLine());
+				else
+					lv = ostack.pop();
 				if((lv.getType() == TokenType.LITERAL || lv.getType() == TokenType.STRING) && (rv.getType() == TokenType.LITERAL || rv.getType() == TokenType.STRING)) {
 					Val r = TUndefined.getInstance();
 					TokenType t = TokenType.LITERAL;
 					if(!(rv instanceof TokenVal))
-						System.err.println("failed optimize: " + lv + postfix.get(i) +" "+ rv);
+						System.err.println("failed optimize: " + lv + " " +postfix.get(i) +" "+ rv);
 					if(!(lv instanceof TokenVal))
-						System.err.println("failed optimize: " + lv + postfix.get(i) +" "+ rv);
+						System.err.println("failed optimize: " + lv + " " + postfix.get(i) +" "+ rv);
 					
 					Val rvv = ((TokenVal)rv).getValue();
 					Val lvv = ((TokenVal)lv).getValue();
@@ -125,7 +134,7 @@ public class StatementBuilder {
 							System.err.println("failed optimize: " + postfix.get(i));
 							break;
 					}
-					ostack.push(new TokenVal(result, t, r));
+					ostack.push(new TokenVal(r.getValue()+"", t, r, rv.getLine()));
 				}
 				else {
 					ostack.push(lv);
