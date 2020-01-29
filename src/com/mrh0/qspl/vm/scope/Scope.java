@@ -55,8 +55,6 @@ public class Scope {
 	}
 	
 	public Var getVar(String name) {
-		//if(!hasVar(name))
-		//	setVar(new Var(name, TUndefined.getInstance()));
 		return variables.getOrDefault(name, new Var(name, TUndefined.getInstance()));
 	}
 	
@@ -64,6 +62,11 @@ public class Scope {
 		if(!hasVar(name) && def)
 			setVar(new Var(name, TUndefined.getInstance()));
 		return variables.getOrDefault(name, new Var(name, TUndefined.getInstance()));
+	}
+	
+	public void delVar(String name) {
+		if(!hasVar(name))
+			variables.remove(name);
 	}
 	
 	public boolean hasVar(String name) {

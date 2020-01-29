@@ -1,5 +1,6 @@
 package com.mrh0.qspl.interpreter.evaluator;
 
+import java.util.ArrayList;
 import java.util.Stack;
 
 import com.mrh0.qspl.io.console.Console;
@@ -75,15 +76,9 @@ public class StatementEval {
 					vals.push(vals.pop().decrement(new TNumber(1)));
 					break;
 				case "=":
-					
-						
 					hl = vals.pop();
-					if(bt == BlockType.CODE)
-						vl = vals.pop();
-					else
-						vl = vals.pop().duplicate();
+					vl = bt == BlockType.CODE?vals.pop():vals.pop().duplicate();
 					vals.push(vl.assign(hl));
-					//System.out.println("Assigned: " + (Var)vals.peek());
 					break;
 				default:
 					System.err.println("Unknown op: " + t.getToken());
@@ -93,8 +88,10 @@ public class StatementEval {
 			else if(t.isBlock()) {
 				if(t.getType() == TokenType.CODE_BLOCK)
 					vals.push(evalBlock((TokenBlock)t, vm).getResult());
-				else if(t.getType() == TokenType.ARY_BLOCK)
+				else if(t.getType() == TokenType.OBJ_BLOCK)
 					vals.push(evalContainerBlock((TokenBlock)t, vm).getResult());
+				else if(t.getType() == TokenType.ACCESSOR_BLOCK)
+					vals.push(evalAccessorBlock((TokenBlock)t, vm, vals.pop()).getResult());
 			}
 			else if(t.hasValue()) {
 				vals.push(((TokenVal)t).getValue());
@@ -107,11 +104,32 @@ public class StatementEval {
 			}
 			else if(t.isIdentifier()) {
 				Var var = vm.getVariable(t.getToken());
-				//System.out.println("pushed: " + var);
 				vals.push(var);
 			}
-			else if(t.isTailKeyword())
-				Console.g.log(vals.isEmpty()?TUndefined.getInstance():vals.peek().getValue());
+			else if(t.isTailKeyword()) {
+				switch(t.getToken()) {
+					case "out":
+						Console.g.log(vals.isEmpty()?TUndefined.getInstance():vals.peek().getValue());
+						break;
+					case "err":
+						Console.g.err(vals.isEmpty()?TUndefined.getInstance():vals.peek().getValue());
+						break;
+					case "let":
+						if(!vals.isEmpty() && bt == BlockType.CODE) {
+							Val v = vals.peek();
+							if(v.isVariable()) {
+								vm.setVariable((Var)v);
+							}
+						}
+						else {
+							Console.g.err("Keyword 'let' used in illegal context.");
+						}
+						break;
+					case "del":
+						//vm.delVariable();
+						break;
+				}
+			}
 		}
 		// With statement result:
 		if(!vals.isEmpty() && bt == BlockType.CODE) {
@@ -155,10 +173,10 @@ public class StatementEval {
 	
 	public static EvalResult evalAccessorBlock(TokenBlock b, VM vm, Val toAccess) {
 		Statement[] l = b.getBlock().getStatements();
-		TContainer c = new TContainer();
+		ArrayList<Val> args = new ArrayList<Val>();
 		for(int i = 0; i < l.length; i++) {
-			c.add(new StatementEval(l[i], vm, BlockType.CONTAINER).eval().getResult());
+			args.add(new StatementEval(l[i], vm, BlockType.CONTAINER).eval().getResult());
 		}
-		return new EvalResult(c);
+		return new EvalResult(toAccess.accessor(args.toArray(new Val[0])));
 	}
 }

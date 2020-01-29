@@ -29,6 +29,8 @@ public class Tokens {
 				return true;
 			case "err":
 				return true;
+			case "let":
+				return true;
 			case "exit":
 				return true;
 			case "import":

@@ -1,18 +1,35 @@
 package com.mrh0.qspl.type;
 
+import com.mrh0.qspl.io.console.Console;
+
 public class Var implements Val{
 	
 	private Val value;
 	private String name;
+	private boolean locked = false;
 
 	public Var(String name, Val value) {
 		this.name = name;
 		this.value = value;
+		if(name.toUpperCase().equals(name))
+			this.locked = true;
+	}
+	
+	public Var(String name, Val value, boolean locked) {
+		this.name = name;
+		this.value = value;
+		this.locked = locked;
+	}
+	
+	public Var(Var v) {
+		this.name = v.getName();
+		this.value = v.value;
+		this.locked = v.locked;
 	}
 	
 	@Override
 	public String toString() {
-		return "var("+name+": "+value+")";
+		return "("+name+"="+value+")";
 	}
 
 	@Override
@@ -119,7 +136,10 @@ public class Var implements Val{
 	
 	@Override
 	public Val assign(Val v) {
-		//System.out.println("Assigning: " + v + " to: " + this);
+		if(this.locked && !this.isUndefined()) {
+			Console.g.err("Cannot assign a constant (" + this + ")");
+			return this;
+		}
 		if(v.isVariable()) {
 			value = ((Var)v).get();
 			return this;
@@ -131,5 +151,10 @@ public class Var implements Val{
 	@Override
 	public Object getValue() {
 		return value.getValue();
+	}
+	
+	@Override
+	public Val accessor(Val... args) {
+		return value.accessor(args);
 	}
 }

@@ -110,6 +110,7 @@ public class TNumber implements Val{
 			return (TNumber)v;
 		if(v instanceof Var && v.isNumber())
 			return from(((Var)v).get());
+		Console.g.err("Cannot convert " + v.getTypeName() + " to number.");
 		return null;
 	}
 

@@ -30,7 +30,6 @@ public class VM {
 			if(s.getPolicy() == Policy.DontReadDown)
 				return s.getVar(name);
 			if(s.hasVar(name)) {
-				//System.out.println(name + " is Defined");
 				return s.getVar(name);
 			}
 		}
@@ -47,13 +46,16 @@ public class VM {
 			if(s.getPolicy() == Policy.DontReadDown)
 				return s.getVar(name, true);
 			if(s.hasVar(name)) {
-				//System.out.println(name + " is Defined");
 				return s.getVar(name, true);
 			}
 		}
 		if(s == null)
 			Console.g.err("Empty scope stack!");
 		return s.getVar(name, true);
+	}
+	
+	public void delVariable(Var v) {
+		
 	}
 	
 	public Var setVariable(Var var) {

@@ -1,5 +1,7 @@
 package com.mrh0.qspl.type;
 
+import com.mrh0.qspl.io.console.Console;
+
 public class TString implements Val{
 
 	private String value;
@@ -64,4 +66,12 @@ public class TString implements Val{
 		return value;
 	}
 
+	public static TString from(Val v) {
+		if(v instanceof TString)
+			return (TString)v;
+		if(v instanceof Var && v.isString())
+			return from(((Var)v).get());
+		Console.g.err("Cannot convert " + v.getTypeName() + " to string.");
+		return null;
+	}
 }
