@@ -13,6 +13,7 @@ public class SecondPass {
 	private boolean newCall = false;
 	private boolean funcCall = false;
 	private boolean append = false;
+	private int appendType = 0; // 1 = : 2 = ::
 	
 	public SecondPass(ArrayList<Token> tokens) {
 		stmts = new StatementStack();
@@ -42,8 +43,8 @@ public class SecondPass {
 			}
 			else if(t == TokenType.APPEND) {
 				append = true;
-				System.out.println("Append!");
-				stmts.feed(cur);
+				appendType = s.length();
+				//stmts.feed(cur);
 				continue;
 			}
 			else if(t == TokenType.SEPERATOR) {
@@ -72,15 +73,24 @@ public class SecondPass {
 				continue;
 			}
 			else if(t == TokenType.BEGIN_BLOCK) {
+				
+				
 				//stmts.push(TokenType.CODE_BLOCK);
 				if(funcCall) {
 					stmts.push(s.equals("[")?TokenType.OBJ_BLOCK:TokenType.CODE_BLOCK, append);
 					
+					append = false;
+					appendType = 0;
 					end();
 					continue;
 				}
-				stmts.push(s.equals("{")?(newCall?TokenType.OBJ_BLOCK:TokenType.CODE_BLOCK):(newCall?TokenType.ARY_BLOCK:TokenType.ACCESSOR_BLOCK), append);
 				
+				
+				TokenType blkt = (appendType == 1)?TokenType.IF_BLOCK:((appendType == 2)?TokenType.WHILE_BLOCK:TokenType.CODE_BLOCK);
+				stmts.push(s.equals("{")?(newCall?TokenType.OBJ_BLOCK:blkt):(newCall?TokenType.ARY_BLOCK:TokenType.ACCESSOR_BLOCK), append);
+				
+				append = false;
+				appendType = 0;
 				end();
 				continue;
 			}

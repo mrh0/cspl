@@ -41,6 +41,13 @@ public class StatementEval {
 		this.bt  = BlockType.CODE;
 	}
 	
+	public StatementEval(StatementEval se) {
+		this.s = se.s;
+		this.vals = new Stack<Val>();
+		this.vm = se.vm;
+		this.bt  = se.bt;
+	}
+	
 	public EvalResult eval() {
 		for(int i = 0; i < s.length(); i++) {
 			Token t = s.getToken(i);
@@ -75,6 +82,19 @@ public class StatementEval {
 				case "--":
 					vals.push(vals.pop().decrement(new TNumber(1)));
 					break;
+				case "==":
+					hl = vals.pop();
+					vals.push(new TNumber(vals.pop().compare(hl)==0));
+					break;
+				case "<":
+					hl = vals.pop();
+					vals.push(new TNumber(vals.pop().compare(hl)==-1));
+					break;
+				case ">":
+					hl = vals.pop();
+					System.out.println(vals.peek() + ">" + hl +":" + new TNumber(vals.peek().compare(hl)==1));
+					vals.push(new TNumber(vals.pop().compare(hl)==1));
+					break;
 				case "=":
 					hl = vals.pop();
 					vl = bt == BlockType.CODE?vals.pop():vals.pop().duplicate();
@@ -92,6 +112,21 @@ public class StatementEval {
 					vals.push(evalContainerBlock((TokenBlock)t, vm).getResult());
 				else if(t.getType() == TokenType.ACCESSOR_BLOCK)
 					vals.push(evalAccessorBlock((TokenBlock)t, vm, vals.pop()).getResult());
+				else if(t.getType() == TokenType.IF_BLOCK) {
+					if(vals.peek().booleanValue())
+						vals.push(evalBlock((TokenBlock)t, vm).getResult());
+				}
+				else if(t.getType() == TokenType.WHILE_BLOCK) {
+					Val r = TUndefined.getInstance();
+					if(vals.peek().booleanValue()) {
+						r = evalBlock((TokenBlock)t, vm).getResult();
+						/*try {Thread.sleep(500);
+						} catch (InterruptedException e) {e.printStackTrace();}*/
+						i = -1;
+						this.vals = new Stack<Val>();
+						continue;
+					}
+				}
 			}
 			else if(t.hasValue()) {
 				vals.push(((TokenVal)t).getValue());
@@ -114,6 +149,10 @@ public class StatementEval {
 					case "err":
 						Console.g.err(vals.isEmpty()?TUndefined.getInstance():vals.peek().getValue());
 						break;
+					case "val":
+						if(vals.peek().isVariable())
+							vals.push(((Var)vals.pop()).get());
+						break;
 					case "let":
 						if(!vals.isEmpty() && bt == BlockType.CODE) {
 							Val v = vals.peek();
@@ -127,6 +166,19 @@ public class StatementEval {
 						break;
 					case "del":
 						//vm.delVariable();
+						break;
+				}
+			}
+			else if(t.isValKeyword()) {
+				switch(t.getToken()) {
+					case "true":
+						vals.push(new TNumber(true));
+						break;
+					case "false":
+						vals.push(new TNumber(false));
+						break;
+					case "undefined":
+						vals.push(TUndefined.getInstance());
 						break;
 				}
 			}

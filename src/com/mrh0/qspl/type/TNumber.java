@@ -31,6 +31,10 @@ public class TNumber implements Val{
 		value = val;
 	}
 	
+	public TNumber(boolean val) {
+		value = val?1:0;
+	}
+	
 	public TNumber(String val) {
 		value = Double.parseDouble(val);
 	}
@@ -95,6 +99,29 @@ public class TNumber implements Val{
 			return new TNumber(value / from(v).get());
 		Console.g.err("Cannot preform operation divide on " + this.getTypeName() + " with " + v.getTypeName());
 		return TUndefined.getInstance();
+	}
+	
+	@Override
+	public boolean equals(Val v) {
+		if(v.isNumber()) {
+			TNumber n = TNumber.from(v);
+			return n.get() == value;
+		}
+		return super.equals(v);
+	}
+	
+	/*@Override
+	public int compare(Val v) {
+		if(v.isNumber()) {
+			TNumber n = TNumber.from(v);
+			return n.get() > value?-1:(n.get() < value?1:0);
+		}
+		return Val.super.compare(v);
+	}*/
+	
+	@Override
+	public double getRelativeValue(Val v) {
+		return value;
 	}
 	
 	public double get() {

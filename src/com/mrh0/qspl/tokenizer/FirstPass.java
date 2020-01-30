@@ -20,7 +20,7 @@ public class FirstPass {
 	private TokenType ctype;
 	private int pos;
 	private int line = 0;
-	private int lastindent = 0;
+	private int targetindent = 0;
 	private int indent = 0;
 	private int statementTokenCount = 0;
 	
@@ -55,22 +55,22 @@ public class FirstPass {
 				tokens.add(new Token("{", TokenType.BEGIN_BLOCK));
 				lastindent = indent;
 			}*/
-			if(indent < lastindent && ctype != TokenType.NONE) {
-				System.out.println("Outdent " + (lastindent - indent));
-				for(int i = (lastindent - indent); i > 0; i--) {
+			if(indent < targetindent && ctype != TokenType.SEPERATOR && ctype != TokenType.LN_BRK && ctype != TokenType.NONE) {
+				System.out.println("Outdent " + (targetindent - indent) + ":" + ctype);
+				for(int i = (targetindent - indent); i > 0; i--) {
 					tokens.add(new Token("}", TokenType.END_BLOCK, line));
 					if(indentStack.pop()) {
 						System.out.println("Add ;");
 						tokens.add(new Token(";", TokenType.END, line));
 					}
 				}
-				lastindent = indent;
+				targetindent = indent;
 			}
 			
 			
 			if(c == '\r' || c == '\n') {
-				lastindent = indent;
 				indent = 0;
+				System.out.println("newline");
 				Console.g.setCurrentLine(line++);
 				end();
 				consume('\r', TokenType.LN_BRK);
@@ -250,10 +250,11 @@ public class FirstPass {
 		}
 		if(ctype == TokenType.APPEND) {
 			tokens.add(new Token(rtoken, ctype, line));
-			System.out.println("Indent");
+			
 			tokens.add(new Token("{", TokenType.BEGIN_BLOCK, line));
-			lastindent = indent;
+			targetindent++;
 			indentStack.push(true);
+			System.out.println("TargetIndent: " + targetindent);
 			
 			clear();
 			statementTokenCount = 0;

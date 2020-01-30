@@ -113,6 +113,21 @@ public class Var implements Val{
 	}
 	
 	@Override
+	public int compare(Val v) {
+		return value.compare(v);
+	}
+	
+	@Override
+	public boolean equals(Val v) {
+		return value.equals(v);
+	}
+	
+	@Override
+	public double getRelativeValue(Val v) {
+		return value.getRelativeValue(v);
+	}
+	
+	@Override
 	public Val increment(Val v) {
 		if(!value.isNumber())
 			return TUndefined.getInstance();

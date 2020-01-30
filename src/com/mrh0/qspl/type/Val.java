@@ -60,10 +60,27 @@ public interface Val {
 		return TUndefined.getInstance();
 	}
 	
+	public default boolean equals(Val v) {
+		Console.g.err("Cannot preform operation equals on " + this.getTypeName() + " with " + v.getTypeName());
+		return false;
+	}
+	
+	public default int compare(Val v) {
+		//Console.g.log("Default compare operation on " + this.getTypeName() + " with " + v.getTypeName());
+		if(this.equals(v))
+			return 0;
+		return getRelativeValue(v) < v.getRelativeValue(this)?-1:1; //<:-1 =:0 >:1 !=:MIN
+	}
+	
+	public default double getRelativeValue(Val v) {
+		return Integer.MIN_VALUE;
+	}
+	
 	public default Val increment(Val v) {
 		Console.g.err("Cannot preform operation increment on " + this.getTypeName() + " with " + v.getTypeName());
 		return TUndefined.getInstance();
 	}
+	
 	public default Val decrement(Val v) {
 		Console.g.err("Cannot preform operation decrement on " + this.getTypeName() + " with " + v.getTypeName());
 		return TUndefined.getInstance();

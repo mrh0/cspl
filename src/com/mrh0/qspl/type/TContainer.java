@@ -37,7 +37,7 @@ public class TContainer implements Val{
 
 	@Override
 	public boolean booleanValue() {
-		return false;
+		return map.size() > 0;
 	}
 
 	@Override

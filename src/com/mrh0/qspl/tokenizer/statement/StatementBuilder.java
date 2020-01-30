@@ -47,8 +47,10 @@ public class StatementBuilder {
 		String s = cur.getToken();
 		
 		if(t == TokenType.IDENTIFIER  || t == TokenType.VAL_KEYWORD || t == TokenType.KEYWORD
-				|| t == TokenType.ACCESSOR_BLOCK || t == TokenType.OBJ_BLOCK || t == TokenType.ARY_BLOCK || t == TokenType.CODE_BLOCK)
+				|| t == TokenType.ACCESSOR_BLOCK || t == TokenType.OBJ_BLOCK || t == TokenType.ARY_BLOCK 
+				) {//|| t == TokenType.CODE_BLOCK || t == TokenType.IF_BLOCK || t == TokenType.WHILE_BLOCK
 			postfix.add(cur);
+		}
 		else if(t == TokenType.LITERAL) {
 			postfix.add(new TokenVal(cur.getToken(), cur.getType(), new TNumber(cur.getToken()), cur.getLine()));
 		}
@@ -129,6 +131,15 @@ public class StatementBuilder {
 							break;
 						case "%":
 							r = lvv.mod(rvv);
+							break;
+						case "<":
+							r = new TNumber(lvv.compare(rvv)==-1);
+							break;
+						case ">":
+							r = new TNumber(lvv.compare(rvv)==1);
+							break;
+						case "==":
+							r = new TNumber(lvv.compare(rvv)==0);
 							break;
 						default:
 							System.err.println("failed optimize: " + postfix.get(i));

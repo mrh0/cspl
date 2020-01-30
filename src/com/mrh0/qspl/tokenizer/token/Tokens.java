@@ -19,6 +19,12 @@ public class Tokens {
 				return true;
 			case "line":
 				return true;
+			case "true":
+				return true;
+			case "false":
+				return true;
+			case "undefined":
+				return true;
 		}
 		return false;
 	}
@@ -30,6 +36,8 @@ public class Tokens {
 			case "err":
 				return true;
 			case "let":
+				return true;
+			case "val":
 				return true;
 			case "exit":
 				return true;
@@ -203,8 +211,14 @@ public class Tokens {
 				return 20;
 			case TAIL_KEYWORD:
 				return -50;
+				
 			case CODE_BLOCK:
-				return 25;
+				return -750;
+			case IF_BLOCK:
+				return -750;
+			case WHILE_BLOCK:
+				return -750;
+				
 			case ARY_BLOCK:
 				return 25;
 			case OBJ_BLOCK:

@@ -38,6 +38,21 @@ public class TUndefined implements Val{
 	public String toString() {
 		return "undefined";
 	}
+	
+	@Override
+	public boolean equals(Val v) {
+		return this == v;
+	}
+	
+	@Override
+	public int compare(Val v) {
+		return this == v?0:Integer.MIN_VALUE;
+	}
+	
+	@Override
+	public double getRelativeValue(Val v) {
+		return Double.MIN_VALUE;
+	}
 
 	public static TUndefined getInstance() {
 		if(instance == null)
