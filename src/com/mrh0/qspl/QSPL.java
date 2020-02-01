@@ -21,9 +21,9 @@ public class QSPL {
 		vm = new VM();
 		
 		long start2 = TimeUtil.getMilis();
-		int i=0;
-		int x = 0;
-		while(i < 100000000) {
+		double i=0d;
+		double x = 0d;
+		while(i < 100000000d) {
 			x = 5 * 6 + i;
 			i++;
 		}

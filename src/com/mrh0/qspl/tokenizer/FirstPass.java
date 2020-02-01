@@ -22,7 +22,6 @@ public class FirstPass {
 	private int line = 0;
 	private int targetindent = 0;
 	private int indent = 0;
-	private int statementTokenCount = 0;
 	
 	private Stack<Boolean> indentStack;
 
@@ -50,17 +49,12 @@ public class FirstPass {
 		
 		while(hasNext()) {
 			char c = next();
-			/*if(indent > lastindent) {
-				System.out.println("Indent");
-				tokens.add(new Token("{", TokenType.BEGIN_BLOCK));
-				lastindent = indent;
-			}*/
 			if(indent < targetindent && ctype != TokenType.SEPERATOR && ctype != TokenType.LN_BRK && ctype != TokenType.NONE) {
-				System.out.println("Outdent " + (targetindent - indent) + ":" + ctype);
+				//System.out.println("Outdent " + (targetindent - indent) + ":" + ctype);
 				for(int i = (targetindent - indent); i > 0; i--) {
 					tokens.add(new Token("}", TokenType.END_BLOCK, line));
 					if(indentStack.pop()) {
-						System.out.println("Add ;");
+						//System.out.println("Add ;");
 						tokens.add(new Token(";", TokenType.END, line));
 					}
 				}
@@ -70,7 +64,7 @@ public class FirstPass {
 			
 			if(c == '\r' || c == '\n') {
 				indent = 0;
-				System.out.println("newline");
+				//System.out.println("newline");
 				Console.g.setCurrentLine(line++);
 				end();
 				consume('\r', TokenType.LN_BRK);
@@ -223,14 +217,10 @@ public class FirstPass {
 	private void consume(char c, TokenType t) {
 		ctoken.append(c);
 		ctype = t;
-		if(t != TokenType.LN_BRK)
-			statementTokenCount++;
 	}
 	
 	private void consume(TokenType t) {
 		ctype = t;
-		if(t != TokenType.LN_BRK)
-			statementTokenCount++;
 	}
 	
 	//Create token:
@@ -254,10 +244,9 @@ public class FirstPass {
 			tokens.add(new Token("{", TokenType.BEGIN_BLOCK, line));
 			targetindent++;
 			indentStack.push(true);
-			System.out.println("TargetIndent: " + targetindent);
+			//System.out.println("TargetIndent: " + targetindent);
 			
 			clear();
-			statementTokenCount = 0;
 			return;
 		}
 		
@@ -267,7 +256,6 @@ public class FirstPass {
 		
 		//Reset:
 		clear();
-		statementTokenCount = 0;
 	}
 	
 	private void clear() {

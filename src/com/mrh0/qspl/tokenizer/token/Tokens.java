@@ -231,6 +231,8 @@ public class Tokens {
 			case "(":
 				return -100;
 				
+			case "**":
+				return 11;
 			case "++":
 				return 11;
 			case "--":

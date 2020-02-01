@@ -102,6 +102,14 @@ public class TNumber implements Val{
 	}
 	
 	@Override
+	public Val pow(Val v) {
+		if(v.isNumber())
+			return new TNumber(Math.pow(value,  from(v).get()));
+		Console.g.err("Cannot preform operation powerof on " + this.getTypeName() + " with " + v.getTypeName());
+		return TUndefined.getInstance();
+	}
+	
+	@Override
 	public boolean equals(Val v) {
 		if(v.isNumber()) {
 			TNumber n = TNumber.from(v);

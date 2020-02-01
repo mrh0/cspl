@@ -6,7 +6,7 @@ import com.mrh0.qspl.vm.scope.Scope;
 public class Console {
 	public static Console g;
 	
-	private int currentLine = 0;
+	public int currentLine = 0;
 	private Scope currentScope;
 	
 	public static final PrintStream defaultLogStream = System.out;

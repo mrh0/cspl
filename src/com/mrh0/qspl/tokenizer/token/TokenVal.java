@@ -6,8 +6,8 @@ public class TokenVal extends Token{
 
 	private Val value;
 	
-	public TokenVal(String token, TokenType type, Val value, int line) {
-		super(token, type, line);
+	public TokenVal(String token, Val value, int line) {
+		super(token, TokenType.VAL, line);
 		this.value = value;
 	}
 	

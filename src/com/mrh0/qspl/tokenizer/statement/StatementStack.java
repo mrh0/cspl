@@ -27,20 +27,14 @@ public class StatementStack {
 		stack.peek().feed(t);
 	}
 	
-	//private boolean term = false;
 	public TokenBlock pop() {
 		StatementBuilder sb = stack.pop();
 		Block b = sb.makeBlock();
-		//term = sb.terminates();
 		TokenBlock tb = new TokenBlock(sb.getBlockType(), b, -1);
 		if(!stack.isEmpty())
 			stack.peek().feed(tb);
 		return tb;
 	}
-	
-	/*public boolean didLastTerminate() {
-		return term;
-	}*/
 	
 	public boolean isEmpty() {
 		return stack.isEmpty();

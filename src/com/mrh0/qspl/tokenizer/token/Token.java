@@ -1,9 +1,9 @@
 package com.mrh0.qspl.tokenizer.token;
 
 public class Token {
-	private String token;
+	private final String token;
 	private TokenType type;
-	private int line;
+	public final int line;
 	
 	public Token(String token, TokenType type, int line) {
 		this.token = token;

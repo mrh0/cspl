@@ -52,10 +52,10 @@ public class StatementBuilder {
 			postfix.add(cur);
 		}
 		else if(t == TokenType.LITERAL) {
-			postfix.add(new TokenVal(cur.getToken(), cur.getType(), new TNumber(cur.getToken()), cur.getLine()));
+			postfix.add(new TokenVal(cur.getToken(), new TNumber(cur.getToken()), cur.getLine()));
 		}
 		else if(t == TokenType.STRING) {
-			postfix.add(new TokenVal(cur.getToken(), cur.getType(), new TString(cur.getToken()), cur.getLine()));
+			postfix.add(new TokenVal(cur.getToken(), new TString(cur.getToken()), cur.getLine()));
 		}
 		else if(t == TokenType.SEPERATOR) {
 			if(s.equals("("))
@@ -97,20 +97,20 @@ public class StatementBuilder {
 		Stack<Token> ostack = new Stack<Token>();
 		LinkedList<Token> opti = new LinkedList<Token>();
 		for(int i = 0; i < postfix.size(); i++) {
-			if(postfix.get(i).getType() == TokenType.OPERATOR && !postfix.get(i).getToken().equals("=")) {
+			if(postfix.get(i).getType() == TokenType.OPERATOR && !postfix.get(i).getToken().equals("=") && !postfix.get(i).getToken().equals("!")) {
 				Token rv = ostack.pop();
 				Token lv;
 				if(ostack.isEmpty())
-					lv = new TokenVal("0", TokenType.LITERAL, new TNumber(), rv.getLine());
+					lv = new TokenVal("", new TNumber(), rv.getLine());
 				else
 					lv = ostack.pop();
 				if((lv.getType() == TokenType.LITERAL || lv.getType() == TokenType.STRING) && (rv.getType() == TokenType.LITERAL || rv.getType() == TokenType.STRING)) {
 					Val r = TUndefined.getInstance();
 					TokenType t = TokenType.LITERAL;
-					if(!(rv instanceof TokenVal))
+					/*if(!(rv instanceof TokenVal))
 						System.err.println("failed optimize: " + lv + " " +postfix.get(i) +" "+ rv);
 					if(!(lv instanceof TokenVal))
-						System.err.println("failed optimize: " + lv + " " + postfix.get(i) +" "+ rv);
+						System.err.println("failed optimize: " + rv + " " + postfix.get(i) +" "+ rv);*/
 					
 					Val rvv = ((TokenVal)rv).getValue();
 					Val lvv = ((TokenVal)lv).getValue();
@@ -121,6 +121,7 @@ public class StatementBuilder {
 								t = TokenType.STRING;
 							break;
 						case "-":
+							
 							r = lvv.sub(rvv);
 							break;
 						case "*":
@@ -138,14 +139,23 @@ public class StatementBuilder {
 						case ">":
 							r = new TNumber(lvv.compare(rvv)==1);
 							break;
+						case "<=":
+							r = new TNumber(lvv.compare(rvv)!=1);
+							break;
+						case ">=":
+							r = new TNumber(lvv.compare(rvv)!=-1);
+							break;
 						case "==":
-							r = new TNumber(lvv.compare(rvv)==0);
+							r = new TNumber(lvv.equals(rvv));
+							break;
+						case "!=":
+							r = new TNumber(!lvv.equals(rvv));
 							break;
 						default:
 							System.err.println("failed optimize: " + postfix.get(i));
 							break;
 					}
-					ostack.push(new TokenVal(r.getValue()+"", t, r, rv.getLine()));
+					ostack.push(new TokenVal(r.getValue()+"", r, rv.getLine()));
 				}
 				else {
 					ostack.push(lv);

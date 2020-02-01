@@ -21,7 +21,8 @@ public enum TokenType {
 	END_BLOCK(16, "e_blk"),
 	APPEND(17, "app"),
 	IF_BLOCK(18, "if"),
-	WHILE_BLOCK(19, "whl");
+	WHILE_BLOCK(19, "whl"),
+	VAL(20, "val");
 	
 	private int id;
 	private String name;

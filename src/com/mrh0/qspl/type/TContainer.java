@@ -52,6 +52,11 @@ public class TContainer implements Val{
 	
 	@Override
 	public Val add(Val v) {
+		put(v);
+		return this;
+	}
+	
+	public void put(Val v) {
 		if(v.isVariable()) {
 			Var var = (Var)v;
 			map.put(var.getName(), new Var(var));
@@ -62,7 +67,6 @@ public class TContainer implements Val{
 			map.put(keyIndecies.size()+"", new Var(keyIndecies.size()+"", v));
 			keyIndecies.add(keyIndecies.size()+"");
 		}
-		return this;
 	}
 	
 	public Val get(int i) {
