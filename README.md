@@ -23,19 +23,13 @@ j = j + 5; //j = 16
 
 CONSTANTVALUE = 5; //Constant when variable name is all capital letters
 
-//Accessor:
-a = new ["hi", 5]; //a = array containing ["hi", 5]
-a[0]; //returns "hi"
-a[1]; //returns 5
 
-k = new [new[5,4,3], new[4], new [2,7]]; // 'new' can allso be written as '$'
-out k[1]; //Prints [4]
-out k[2][1]; //Prints 7
-out k[0,1]; //Prints [[5,4,3], [4]]
-
+//Tail keywords
 out "Hello World"[1]; //Prints 'e' to out stream.
 out "Hello World"[0,4]; //Prints 'Hello'
 error "An Error Message"; //Prints message to error stream.
+let f=5;
+val f;
 
 //Strings:
 text = "Hi my name is ";
@@ -82,12 +76,29 @@ Arrays:
 a = new []; //Creates empty array.
 a = $[]; //Creates empty array.
 a = new [5,3,new[6,4],1]; //Creates array : [5.0,3.0,[6.0,4.0],1.0]
-a = new [5,3,2,1]; //Creates array : [5.0,3.0,2.0,1.0]
+
+a = new [1,2,4,8];
+
+//Accessor:
+out a[0]; // : 1
+out a[-1]; // : 8
+
+out a[0,0]; // : [1]
+out a[-1, -1]; // : [8]
+
+out a[0, 3]; // : [1.0, 2.0, 4.0, 8.0]
+out a[3, 0]; // : [8.0, 4.0, 2.0, 1.0]
+
+out a[0, -1]; // : [1.0, 2.0, 4.0, 8.0]
+out a[-1, 0]; // : [8.0, 4.0, 2.0, 1.0]
+
+out a[-2, -1]; // : [4.0, 8.0]
+out a[-1, -2]; // : [8.0, 4.0]
 
 //Operate:
 a + 4; //Adds element 4 : [5.0,3.0,2.0,1.0,4.0]
-a - 3; //Removes element 3 : [5.0,2.0,1.0,4.0]
-a / 1; //Removes element at index 1 : [5.0,1.0,4.0]
+a - 3; //Removes element at index 3 : [5.0,2.0,1.0,4.0]
+a / 1; //Splits array at index 2 : [[5.0], [1.0, 4.0]]
 a * 2; //Doubles the array : [5.0,1.0,4.0,5.0,1.0,4.0]
 a * "|"; //Joins elements in array with "|" : "5.0|1.0|4.0|5.0|1.0|4.0"
 a ? 4 //Array contains 4 : true
