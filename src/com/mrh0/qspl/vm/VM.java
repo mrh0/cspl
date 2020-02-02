@@ -3,6 +3,7 @@ package com.mrh0.qspl.vm;
 import java.util.ListIterator;
 import java.util.Stack;
 import com.mrh0.qspl.io.console.Console;
+import com.mrh0.qspl.type.TContainer;
 import com.mrh0.qspl.type.Var;
 import com.mrh0.qspl.vm.scope.Scope;
 import com.mrh0.qspl.vm.scope.Scope.Policy;
@@ -62,6 +63,13 @@ public class VM {
 		Var v = defVariable(var.getName());
 		v.assign(var.get());
 		return v;
+	}
+	
+	public void setVariables(TContainer c) {
+		for(String key : c.getKeys()) {
+			Var v = defVariable(key);
+			v.assign(c.get(key));
+		}
 	}
 	
 	public void pushScope(Scope scope) {

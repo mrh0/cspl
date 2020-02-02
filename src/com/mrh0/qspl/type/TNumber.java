@@ -109,6 +109,10 @@ public class TNumber implements Val{
 		return TUndefined.getInstance();
 	}
 	
+	public Val approx() {
+		return new TNumber(Math.round(value));
+	}
+	
 	@Override
 	public boolean equals(Val v) {
 		if(v.isNumber()) {

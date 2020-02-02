@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.util.StringUtil;
 
 public class TContainer implements Val{
@@ -23,6 +24,11 @@ public class TContainer implements Val{
 	
 	public enum ContainerType {
 		LIST, MAP, MIXED, EMPTY
+	}
+	
+	@Override
+	public boolean isContainer() {
+		return true;
 	}
 
 	@Override
@@ -80,15 +86,15 @@ public class TContainer implements Val{
 	}
 	
 	@Override
-	public Val accessor(Val...args) {
-		if(args.length == 0) 
+	public Val accessor(ArrayList<Val> args) {
+		if(args.size() == 0) 
 			return new TNumber(map.size());
-		else if(args.length == 1) {
-			if(args[0].isNumber()) {
-				return get(TNumber.from(args[0]).integerValue());
+		else if(args.size() == 1) {
+			if(args.get(0).isNumber()) {
+				return get(TNumber.from(args.get(0)).integerValue());
 			}
-			else if(args[0].isString()) {
-				return get(TString.from(args[0]).get());
+			else if(args.get(0).isString()) {
+				return get(TString.from(args.get(0)).get());
 			}
 		}
 		return TUndefined.getInstance();
@@ -105,5 +111,30 @@ public class TContainer implements Val{
 		}
 		r.append("}");
 		return r.toString();
+	}
+	
+	@Override
+	public Val assign(Val v) {
+		if(v.isContainer()) {
+			TContainer c = TContainer.from(v);
+			for(String key : keyIndecies) {
+				this.put(c.get(key));
+			}
+			return this;
+		}
+		return Val.super.assign(v);
+	}
+	
+	public static TContainer from(Val v) {
+		if(v instanceof TContainer)
+			return (TContainer)v;
+		if(v instanceof Var && v.isContainer())
+			return from(((Var)v).get());
+		Console.g.err("Cannot convert " + v.getTypeName() + " to container.");
+		return null;
+	}
+	
+	public ArrayList<String> getKeys(){
+		return keyIndecies;
 	}
 }

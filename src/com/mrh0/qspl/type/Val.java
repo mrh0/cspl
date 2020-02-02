@@ -1,5 +1,7 @@
 package com.mrh0.qspl.type;
 
+import java.util.ArrayList;
+
 import com.mrh0.qspl.io.console.Console;
 
 public interface Val {
@@ -38,6 +40,10 @@ public interface Val {
 		return false;
 	}
 	
+	public default boolean isContainer() {
+		return false;
+	}
+	
 	//Arithmetic Operations:
 	public default Val add(Val v) {
 		Console.g.err("Cannot preform operation add on " + this.getTypeName() + " with " + v.getTypeName());
@@ -69,6 +75,11 @@ public interface Val {
 		return TUndefined.getInstance();
 	}
 	
+	public default Val is(Val v) {
+		Console.g.err("Cannot preform operation is on " + this.getTypeName() + " with " + v.getTypeName());
+		return TUndefined.getInstance();
+	}
+	
 	public default Val logicalAnd(Val v) {
 		return new TNumber(this.booleanValue() && v.booleanValue());
 	}
@@ -80,6 +91,10 @@ public interface Val {
 	}
 	public default Val logicalNot() {
 		return new TNumber(!this.booleanValue());
+	}
+	public default Val approx() {
+		Console.g.err("Cannot preform operation approximate on " + this.getTypeName());
+		return TUndefined.getInstance();
 	}
 	
 	public default Val bitwiseAnd(Val v) {
@@ -126,17 +141,8 @@ public interface Val {
 		return TUndefined.getInstance();
 	}
 	
-	public default Val accessor() {
-		return accessor(new Val[0]);
-	}
-	
-	public default Val accessor(Val arg0) {
-		Val[] a = {arg0};
-		return accessor(a) ;
-	}
-	
-	public default Val accessor(Val...args) {
-		Console.g.err("Cannot preform operation accessor with " + args.length + (args.length==1?" argument on ":" arguments on ") + this.getTypeName());
+	public default Val accessor(ArrayList<Val> args) {
+		Console.g.err("Cannot preform operation accessor with " + args.size() + (args.size()==1?" argument on ":" arguments on ") + this.getTypeName());
 		return TUndefined.getInstance();
 	}
 }

@@ -97,7 +97,7 @@ public class StatementBuilder {
 		Stack<Token> ostack = new Stack<Token>();
 		LinkedList<Token> opti = new LinkedList<Token>();
 		for(int i = 0; i < postfix.size(); i++) {
-			if(postfix.get(i).getType() == TokenType.OPERATOR && !postfix.get(i).getToken().equals("=") && !postfix.get(i).getToken().equals("!")) {
+			if(postfix.get(i).getType() == TokenType.OPERATOR && !Tokens.optimizeIgnoreOp(postfix.get(i).getToken())) { //!postfix.get(i).getToken().equals("=") && !postfix.get(i).getToken().equals("!")
 				Token rv = ostack.pop();
 				Token lv;
 				if(ostack.isEmpty())

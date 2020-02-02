@@ -302,4 +302,16 @@ public class Tokens {
 		Console.g.err("Unidentified Operator: '" + s + "'");
 		return 0;
 	}
+	
+	public static boolean optimizeIgnoreOp(String op) {
+		switch(op) {
+			case "=":
+				return true;
+			case "!":
+				return true;
+			case "~":
+				return true;
+		}
+		return false;
+	}
 }

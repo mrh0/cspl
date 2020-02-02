@@ -1,5 +1,7 @@
 package com.mrh0.qspl.type;
 
+import java.util.ArrayList;
+
 import com.mrh0.qspl.io.console.Console;
 
 public class Var implements Val{
@@ -10,14 +12,14 @@ public class Var implements Val{
 
 	public Var(String name, Val value) {
 		this.name = name;
-		this.value = value;
-		if(name.toUpperCase().equals(name))
+		this.value = value.isVariable()?((Var)value).get():value;
+		if(name.toUpperCase().equals(name) && name.charAt(0) > '9' && name.charAt(0) < '0') //!name.matches("[a-z]+|\\d+")
 			this.locked = true;
 	}
 	
 	public Var(String name, Val value, boolean locked) {
 		this.name = name;
-		this.value = value;
+		this.value = value.isVariable()?((Var)value).get():value;
 		this.locked = locked;
 	}
 	
@@ -169,7 +171,7 @@ public class Var implements Val{
 	}
 	
 	@Override
-	public Val accessor(Val... args) {
+	public Val accessor(ArrayList<Val> args) {
 		return value.accessor(args);
 	}
 }

@@ -1,6 +1,41 @@
 package com.mrh0.qspl.type;
 
+import java.util.ArrayList;
+
 public class TArray implements Val{
+	
+	ArrayList<Var> values;
+	
+	public TArray() {
+		values = new ArrayList<Var>();
+	}
+	
+	public TArray(ArrayList<Var> values) {
+		values = new ArrayList<Var>();
+		for(int i = 0; i < values.size(); i++) {
+			this.values.set(i, new Var(values.get(i)));
+		}
+	}
+	
+	public TArray(String[] strs) {
+		values = new ArrayList<Var>();
+		for(int i = 0; i < strs.length; i++) {
+			this.add(new TString(strs[i]));
+		}
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("[");
+		for(int i = 0; i < values.size(); i++) {
+			sb.append(values.get(i).get());
+			if(i+1 < values.size())
+				sb.append(", ");
+		}
+		sb.append("]");
+		return sb.toString();
+	}
 
 	@Override
 	public int getType() {
@@ -9,12 +44,12 @@ public class TArray implements Val{
 
 	@Override
 	public Val duplicate() {
-		return null;
+		return new TArray(values);
 	}
 
 	@Override
 	public boolean booleanValue() {
-		return false;
+		return values.size() > 0;
 	}
 
 	@Override
@@ -24,7 +59,87 @@ public class TArray implements Val{
 
 	@Override
 	public Object getValue() {
-		return null;
+		return this;
 	}
-
+	
+	public Var get(int i) {
+		return values.get(i < 0?size()+i:i);
+	}
+	
+	public int size() {
+		return values.size();
+	}
+	
+	public void set(int index, Val v) {
+		values.set(index, new Var(index+"", v));
+	}
+	
+	public void set(int index, Var v) {
+		values.set(index, v);
+	}
+	
+	@Override
+	public Val add(Val v) {
+		Var var = new Var(size()+"", v);
+		values.add(var);
+		return var;
+	}
+	
+	@Override
+	public Val multi(Val v) {
+		if(v.isString()) {
+			StringBuilder sb = new StringBuilder();
+			for(int i = 0; i < values.size(); i++) {
+				sb.append(values.get(i));
+				if(i+1 < values.size())
+					sb.append(TString.from(v).get());
+			}
+			return new TString(sb.toString());
+		}
+		return TUndefined.getInstance();
+	}
+	
+	@Override
+	public Val accessor(ArrayList<Val> args) {
+		if(args.size() == 0) 
+			return new TNumber(values.size());
+		else if(args.size() == 1) {
+			if(args.get(0).isNumber()) {
+				return get(TNumber.from(args.get(0)).integerValue());
+			}
+		}
+		else if(args.size() == 2) {
+			if(args.get(0).isNumber() && args.get(1).isNumber()) {
+				TArray a = new TArray();
+				int as = TNumber.from(args.get(0)).integerValue();
+				int ae = TNumber.from(args.get(1)).integerValue();
+				
+				if(as == ae) {
+					a.add(get(as));
+				}
+				else if(as < ae && as < 0 && ae >= 0) {
+					for(int i = size()+as; i > ae-1; i--) {
+						a.add(get(i));
+					}
+				}
+				else if(as > ae && as >= 0 && ae < 0){
+					for(int i = as; i < size()+ae+1; i++) {
+						a.add(get(i));
+					}
+				}
+				else if(as < ae) {
+					for(int i = as; i < ae+1; i++) {
+						a.add(get(i));
+					}
+				}
+				else if(as > ae){
+					for(int i = as; i > ae-1; i--) {
+						a.add(get(i));
+					}
+				}
+				return a;
+			}
+		}
+		return TUndefined.getInstance();
+	}
 }
