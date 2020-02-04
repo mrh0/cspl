@@ -174,4 +174,10 @@ public class Var implements Val{
 	public Val accessor(ArrayList<Val> args) {
 		return value.accessor(args);
 	}
+	
+	public static Var from(Val v) {
+		if(v.isVariable())
+			return (Var)v;
+		return null;
+	}
 }

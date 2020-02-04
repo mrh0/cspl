@@ -1,5 +1,6 @@
 package com.mrh0.qspl.interpreter.evaluator;
 
+import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
 
 public class EvalResult{
@@ -10,6 +11,10 @@ public class EvalResult{
 		this.result = result;
 	}
 	
+	public EvalResult() {
+		this.result = TUndefined.getInstance();
+	}
+
 	public Val getResult() {
 		return this.result;
 	}

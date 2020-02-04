@@ -1,6 +1,8 @@
 package com.mrh0.qspl.interpreter.evaluator;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.tokenizer.statement.Statement;
 import com.mrh0.qspl.tokenizer.token.Token;
@@ -12,6 +14,10 @@ import com.mrh0.qspl.type.TNumber;
 import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
 import com.mrh0.qspl.type.Var;
+import com.mrh0.qspl.type.func.TFunc;
+import com.mrh0.qspl.type.iterator.IIterable;
+import com.mrh0.qspl.type.iterator.TRangeIterator;
+import com.mrh0.qspl.type.iterator.TMiddleManIterator;
 import com.mrh0.qspl.vm.VM;
 
 public class StatementEval {
@@ -124,6 +130,10 @@ public class StatementEval {
 						case "~":
 							vals.push(vals.pop().approx());
 							break;
+						case "...":
+							hl = vals.pop();
+							vals.push(new TRangeIterator(TNumber.from(vals.pop()).integerValue(), TNumber.from(hl).integerValue()));
+							break;
 							
 						case "=":
 							hl = vals.pop();
@@ -170,7 +180,7 @@ public class StatementEval {
 							break;
 					}
 					break;
-				
+					
 				//Value
 				case VAL:
 					vals.push(((TokenVal)t).getValue());
@@ -178,6 +188,27 @@ public class StatementEval {
 				case IDENTIFIER:
 					Var var = vm.getVariable(t.getToken());
 					vals.push(var);
+					break;
+					
+				case OP_KEYWORD:
+					switch(t.getToken()) {
+						case "in":
+							hl = vals.pop();
+							vals.push(new TMiddleManIterator(Var.from(vals.pop()), IIterable.from(hl)));
+							break;
+						case "let":
+							if(!vals.isEmpty() && bt == BlockType.CODE) {
+								Val v = vals.peek();
+								if(v.isVariable()) {
+									vals.pop();
+									vals.push(vm.setVariable((Var)v));
+								}
+							}
+							else {
+								Console.g.err("Keyword 'let' used in illegal context.");
+							}
+							break;
+						}
 					break;
 				
 				//Value keyword
@@ -207,17 +238,6 @@ public class StatementEval {
 							if(vals.peek().isVariable())
 								vals.push(((Var)vals.pop()).get());
 							break;
-						case "let":
-							if(!vals.isEmpty() && bt == BlockType.CODE) {
-								Val v = vals.peek();
-								if(v.isVariable()) {
-									vm.setVariable((Var)v);
-								}
-							}
-							else {
-								Console.g.err("Keyword 'let' used in illegal context.");
-							}
-							break;
 						case "del":
 							//vm.delVariable();
 							break;
@@ -243,7 +263,15 @@ public class StatementEval {
 					break;
 				case WHILE_BLOCK:
 					//Val r = TUndefined.getInstance();
-					if(vals.peek().booleanValue()) {
+					if(vals.peek().isIterable()) {
+						Iterator<Val> it = IIterable.from(vals.peek()).iterator();
+						while(it.hasNext()) {
+							it.next();
+							evalBlock((TokenBlock)t, vm);
+						}
+						continue;
+					}
+					else if(vals.peek().booleanValue()) {
 						evalBlock((TokenBlock)t, vm);//.getResult();
 						//try {Thread.sleep(500);
 						//} catch (InterruptedException e) {e.printStackTrace();}
@@ -284,8 +312,20 @@ public class StatementEval {
 	
 	public static EvalResult evalArrayBlock(TokenBlock b, VM vm) {
 		Statement[] l = b.getBlock().getStatements();
-		TArray a = new TArray();
+		TArray a;
 		ValStack bvals = new ValStack();
+		if(l.length == 1) {
+			Val r = new StatementEval(l[0], vm, BlockType.ARRAY, bvals).eval().getResult();
+			if(r.isIterable()) {
+				a = new TArray(IIterable.from(r));
+				return new EvalResult(a);
+			}
+			a = new TArray();
+			a.add(r);
+			return new EvalResult(a);
+		}
+		
+		a = new TArray();
 		for(int i = 0; i < l.length; i++) {
 			a.add(new StatementEval(l[i], vm, BlockType.ARRAY, bvals).eval().getResult());
 		}
@@ -318,6 +358,8 @@ public class StatementEval {
 		for(int i = 0; i < l.length; i++) {
 			args.add(new StatementEval(l[i], vm, BlockType.CONTAINER, bvals).eval().getResult());
 		}
+		if(toAccess.isFunction())
+			return TFunc.from(toAccess).execute(vm, TUndefined.getInstance(), args);
 		return new EvalResult(toAccess.accessor(args));
 	}
 }

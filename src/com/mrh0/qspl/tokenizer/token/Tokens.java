@@ -35,8 +35,6 @@ public class Tokens {
 				return true;
 			case "err":
 				return true;
-			case "let":
-				return true;
 			case "val":
 				return true;
 			case "exit":
@@ -67,6 +65,8 @@ public class Tokens {
 	
 	public static boolean isOpKeyword(String s) {
 		switch(s) {
+			case "let":
+				return true;
 			case "in":
 				return true;
 			case "of":
@@ -208,6 +208,12 @@ public class Tokens {
 	public static int opValue(String s, TokenType t) {
 		switch(t) {
 			case OP_KEYWORD:
+				switch(s) {
+					case "in":
+						return 1;
+					case "let":
+						return 20;
+				}
 				return 20;
 			case TAIL_KEYWORD:
 				return -50;
@@ -230,7 +236,9 @@ public class Tokens {
 		switch(s) {
 			case "(":
 				return -100;
-				
+			
+			case "...":
+				return 11;
 			case "**":
 				return 11;
 			case "++":

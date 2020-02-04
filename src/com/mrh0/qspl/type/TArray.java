@@ -1,13 +1,22 @@
 package com.mrh0.qspl.type;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
-public class TArray implements Val{
+import com.mrh0.qspl.type.iterator.IIterable;
+
+public class TArray implements Val, IIterable{
 	
 	ArrayList<Var> values;
 	
 	public TArray() {
 		values = new ArrayList<Var>();
+	}
+	
+	public TArray(Iterable<Val> it) {
+		values = new ArrayList<Var>();
+		for(Val v : it)
+			this.add(v);
 	}
 	
 	public TArray(ArrayList<Var> values) {
@@ -141,5 +150,10 @@ public class TArray implements Val{
 			}
 		}
 		return TUndefined.getInstance();
+	}
+
+	@Override
+	public Iterator<Val> iterator() {
+		return null;
 	}
 }

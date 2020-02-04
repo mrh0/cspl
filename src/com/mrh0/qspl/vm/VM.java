@@ -1,20 +1,35 @@
 package com.mrh0.qspl.vm;
 
+import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.Stack;
+
+import com.mrh0.qspl.interpreter.evaluator.EvalResult;
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.type.TContainer;
+import com.mrh0.qspl.type.Val;
 import com.mrh0.qspl.type.Var;
+import com.mrh0.qspl.type.func.IFunc;
+import com.mrh0.qspl.type.func.InternalFunc;
 import com.mrh0.qspl.vm.scope.Scope;
 import com.mrh0.qspl.vm.scope.Scope.Policy;
 
 public class VM {
 	
 	private Stack<Scope> scopeStack;
+	private TContainer exports;
 	
 	public VM() {
 		scopeStack = new Stack<Scope>();
 		scopeStack.add(new Scope("origin"));
+		exports = new TContainer();
+		
+		IFunc f = (VM vm, Val _this, ArrayList<Val> args) -> {
+			System.out.println("Hello!");
+			return new EvalResult();
+		};
+		
+		setVariable(new Var("test", new InternalFunc(f)));
 	}
 	
 	public Scope getCurrentScope() {
@@ -80,5 +95,9 @@ public class VM {
 		if(scopeStack.isEmpty())
 			Console.g.err("Empty scope stack!");
 		return scopeStack.pop();
+	}
+	
+	public TContainer getExports() {
+		return exports;
 	}
 }

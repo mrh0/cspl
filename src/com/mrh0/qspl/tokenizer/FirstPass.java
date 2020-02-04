@@ -175,6 +175,11 @@ public class FirstPass {
 				if(Tokens.canBeLiteral(c)) {
 					if(ctype == TokenType.LITERAL) {
 						consume(c, TokenType.LITERAL);
+						if(ctoken.length() >= 3 && ctoken.substring(ctoken.length()-3).equals("...")) {
+							ctoken.delete(ctoken.length()-3, ctoken.length());
+							end();
+							tokens.add(new Token("...", TokenType.OPERATOR, line));
+						}
 						continue;
 					}
 					else {

@@ -3,10 +3,13 @@ package com.mrh0.qspl.type;
 import java.util.ArrayList;
 
 import com.mrh0.qspl.io.console.Console;
+import com.mrh0.qspl.type.iterator.IIterable;
 
 public interface Val {
-	public int getType();
-	public Val duplicate();
+	@Deprecated
+	public default int getType() {return 0;};
+	@Deprecated
+	public default Val duplicate() {return this;};
 	public boolean booleanValue();
 	public String getTypeName();
 	public Object getValue();
@@ -42,6 +45,10 @@ public interface Val {
 	
 	public default boolean isContainer() {
 		return false;
+	}
+	
+	public default boolean isIterable() {
+		return this instanceof IIterable;
 	}
 	
 	//Arithmetic Operations:
