@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.mrh0.qspl.io.console.Console;
+import com.mrh0.qspl.type.number.TNumber;
 import com.mrh0.qspl.util.StringUtil;
 
 public class TContainer implements Val{
@@ -88,7 +89,7 @@ public class TContainer implements Val{
 	@Override
 	public Val accessor(ArrayList<Val> args) {
 		if(args.size() == 0) 
-			return new TNumber(map.size());
+			return TNumber.create(map.size());
 		else if(args.size() == 1) {
 			if(args.get(0).isNumber()) {
 				return get(TNumber.from(args.get(0)).integerValue());

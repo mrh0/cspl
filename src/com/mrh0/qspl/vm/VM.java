@@ -18,10 +18,12 @@ public class VM {
 	
 	private Stack<Scope> scopeStack;
 	private TContainer exports;
+	private Scope root;
 	
 	public VM() {
 		scopeStack = new Stack<Scope>();
-		scopeStack.add(new Scope("origin"));
+		root = new Scope("origin");
+		scopeStack.add(root);
 		exports = new TContainer();
 		
 		IFunc f = (VM vm, Val _this, ArrayList<Val> args) -> {
@@ -95,6 +97,12 @@ public class VM {
 		if(scopeStack.isEmpty())
 			Console.g.err("Empty scope stack!");
 		return scopeStack.pop();
+	}
+	
+	public void include(TContainer c) {
+		for(String key : c.getKeys()) {
+			root.setVar(new Var(key, c.get(key)));
+		}
 	}
 	
 	public TContainer getExports() {

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.type.iterator.IIterable;
+import com.mrh0.qspl.type.number.TNumber;
 
 public interface Val {
 	@Deprecated
@@ -12,6 +13,7 @@ public interface Val {
 	public default Val duplicate() {return this;};
 	public boolean booleanValue();
 	public String getTypeName();
+	@Deprecated
 	public Object getValue();
 	
 	//Defaults:
@@ -88,16 +90,16 @@ public interface Val {
 	}
 	
 	public default Val logicalAnd(Val v) {
-		return new TNumber(this.booleanValue() && v.booleanValue());
+		return TNumber.create(this.booleanValue() && v.booleanValue());
 	}
 	public default Val logicalOr(Val v) {
 		return this.booleanValue()?this:v;
 	}
 	public default Val logicalXor(Val v) {
-		return this.booleanValue()?(v.booleanValue()?new TNumber(false):this):v;
+		return this.booleanValue()?(v.booleanValue()?TNumber.create(false):this):v;
 	}
 	public default Val logicalNot() {
-		return new TNumber(!this.booleanValue());
+		return TNumber.create(!this.booleanValue());
 	}
 	public default Val approx() {
 		Console.g.err("Cannot preform operation approximate on " + this.getTypeName());

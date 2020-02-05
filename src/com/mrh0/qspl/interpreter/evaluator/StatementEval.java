@@ -10,13 +10,13 @@ import com.mrh0.qspl.tokenizer.token.TokenBlock;
 import com.mrh0.qspl.tokenizer.token.TokenVal;
 import com.mrh0.qspl.type.TArray;
 import com.mrh0.qspl.type.TContainer;
-import com.mrh0.qspl.type.TNumber;
 import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
 import com.mrh0.qspl.type.Var;
 import com.mrh0.qspl.type.func.TFunc;
 import com.mrh0.qspl.type.iterator.IIterable;
 import com.mrh0.qspl.type.iterator.TRangeIterator;
+import com.mrh0.qspl.type.number.TNumber;
 import com.mrh0.qspl.type.iterator.TMiddleManIterator;
 import com.mrh0.qspl.vm.VM;
 
@@ -80,10 +80,10 @@ public class StatementEval {
 							break;
 							
 						case "++":
-							vals.push(vals.pop().increment(new TNumber(1)));
+							vals.push(vals.pop().increment(TNumber.create(1)));
 							break;
 						case "--":
-							vals.push(vals.pop().decrement(new TNumber(1)));
+							vals.push(vals.pop().decrement(TNumber.create(1)));
 							break;
 						case "**":
 							hl = vals.pop();
@@ -92,28 +92,28 @@ public class StatementEval {
 							
 						case "==":
 							hl = vals.pop();
-							vals.push(new TNumber(vals.pop().equals(hl)));
+							vals.push(TNumber.create(vals.pop().equals(hl)));
 							break;
 						case "!=":
 							hl = vals.pop();
-							vals.push(new TNumber(!vals.pop().equals(hl)));
+							vals.push(TNumber.create(!vals.pop().equals(hl)));
 							break;
 							
 						case "<":
 							hl = vals.pop();
-							vals.push(new TNumber(vals.pop().compare(hl)==-1));
+							vals.push(TNumber.create(vals.pop().compare(hl)==-1));
 							break;
 						case ">":
 							hl = vals.pop();
-							vals.push(new TNumber(vals.pop().compare(hl)==1));
+							vals.push(TNumber.create(vals.pop().compare(hl)==1));
 							break;
 						case "<=":
 							hl = vals.pop();
-							vals.push(new TNumber(vals.pop().compare(hl)!=1));
+							vals.push(TNumber.create(vals.pop().compare(hl)!=1));
 							break;
 						case ">=":
 							hl = vals.pop();
-							vals.push(new TNumber(vals.pop().compare(hl)!=-1));
+							vals.push(TNumber.create(vals.pop().compare(hl)!=-1));
 							break;
 							
 						case "&&":
@@ -215,10 +215,10 @@ public class StatementEval {
 				case VAL_KEYWORD:
 					switch(t.getToken()) {
 						case "true":
-							vals.push(new TNumber(true));
+							vals.push(TNumber.create(true));
 							break;
 						case "false":
-							vals.push(new TNumber(false));
+							vals.push(TNumber.create(false));
 							break;
 						case "undefined":
 							vals.push(TUndefined.getInstance());

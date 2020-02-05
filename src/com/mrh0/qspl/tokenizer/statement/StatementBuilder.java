@@ -9,10 +9,10 @@ import com.mrh0.qspl.tokenizer.token.Token;
 import com.mrh0.qspl.tokenizer.token.TokenType;
 import com.mrh0.qspl.tokenizer.token.TokenVal;
 import com.mrh0.qspl.tokenizer.token.Tokens;
-import com.mrh0.qspl.type.TNumber;
 import com.mrh0.qspl.type.TString;
 import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
+import com.mrh0.qspl.type.number.TNumber;
 
 public class StatementBuilder {
 	private Stack<Token> opStack;
@@ -52,7 +52,7 @@ public class StatementBuilder {
 			postfix.add(cur);
 		}
 		else if(t == TokenType.LITERAL) {
-			postfix.add(new TokenVal(cur.getToken(), new TNumber(cur.getToken()), cur.getLine()));
+			postfix.add(new TokenVal(cur.getToken(), TNumber.create(cur.getToken()), cur.getLine()));
 		}
 		else if(t == TokenType.STRING) {
 			postfix.add(new TokenVal(cur.getToken(), new TString(cur.getToken()), cur.getLine()));
@@ -101,7 +101,7 @@ public class StatementBuilder {
 				Token rv = ostack.pop();
 				Token lv;
 				if(ostack.isEmpty())
-					lv = new TokenVal("", new TNumber(), rv.getLine());
+					lv = new TokenVal("", TNumber.create(0), rv.getLine());
 				else
 					lv = ostack.pop();
 				if((lv.getType() == TokenType.LITERAL || lv.getType() == TokenType.STRING) && (rv.getType() == TokenType.LITERAL || rv.getType() == TokenType.STRING)) {
@@ -134,22 +134,22 @@ public class StatementBuilder {
 							r = lvv.mod(rvv);
 							break;
 						case "<":
-							r = new TNumber(lvv.compare(rvv)==-1);
+							r = TNumber.create(lvv.compare(rvv)==-1);
 							break;
 						case ">":
-							r = new TNumber(lvv.compare(rvv)==1);
+							r = TNumber.create(lvv.compare(rvv)==1);
 							break;
 						case "<=":
-							r = new TNumber(lvv.compare(rvv)!=1);
+							r = TNumber.create(lvv.compare(rvv)!=1);
 							break;
 						case ">=":
-							r = new TNumber(lvv.compare(rvv)!=-1);
+							r = TNumber.create(lvv.compare(rvv)!=-1);
 							break;
 						case "==":
-							r = new TNumber(lvv.equals(rvv));
+							r = TNumber.create(lvv.equals(rvv));
 							break;
 						case "!=":
-							r = new TNumber(!lvv.equals(rvv));
+							r = TNumber.create(!lvv.equals(rvv));
 							break;
 						default:
 							System.err.println("failed optimize: " + postfix.get(i));

@@ -1,5 +1,6 @@
 package com.mrh0.qspl.interpreter.evaluator;
 
+import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.type.Val;
 
 public class ValStack {
@@ -23,6 +24,8 @@ public class ValStack {
 	}
 	
 	public Val pop() {
+		if(n-1 < 0)
+			Console.g.err("Value stack is empty.");
 		return vals[--n];
 	}
 	

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import com.mrh0.qspl.type.iterator.IIterable;
+import com.mrh0.qspl.type.number.TNumber;
 
 public class TArray implements Val, IIterable{
 	
@@ -99,7 +100,7 @@ public class TArray implements Val, IIterable{
 		if(v.isString()) {
 			StringBuilder sb = new StringBuilder();
 			for(int i = 0; i < values.size(); i++) {
-				sb.append(values.get(i));
+				sb.append(get(i).get());
 				if(i+1 < values.size())
 					sb.append(TString.from(v).get());
 			}
@@ -110,11 +111,47 @@ public class TArray implements Val, IIterable{
 	
 	@Override
 	public Val accessor(ArrayList<Val> args) {
-		if(args.size() == 0) 
+		/*if(args.size() == 0) 
 			return new TNumber(values.size());
 		else if(args.size() == 1) {
 			if(args.get(0).isNumber()) {
 				return get(TNumber.from(args.get(0)).integerValue());
+			}
+			else if(args.get(0).isIterable()) {
+				TArray a = new TArray();
+				IIterable iter = IIterable.from(args.get(0));
+				for(Val v : iter)
+					a.add(this.get(TNumber.from(v).integerValue()));
+				return a;
+			}
+		}
+		else {
+			TArray a = new TArray();
+			for(int i = 0; i < args.size(); i++) {
+				if(args.get(i).isNumber()) {
+					a.add(get(TNumber.from(args.get(i)).integerValue()));
+				}
+				else if(args.get(i).isIterable()) {
+					
+					IIterable iter = IIterable.from(args.get(i));
+					for(Val v : iter)
+						a.add(this.get(TNumber.from(v).integerValue()));
+				}
+			}
+			return a;
+		}*/
+		if(args.size() == 0) 
+			return TNumber.create(values.size());
+		else if(args.size() == 1) {
+			if(args.get(0).isNumber()) {
+				return get(TNumber.from(args.get(0)).integerValue());
+			}
+			else if(args.get(0).isIterable()) {
+				TArray a = new TArray();
+				IIterable iter = IIterable.from(args.get(0));
+				for(Val v : iter)
+					a.add(this.get(TNumber.from(v).integerValue()));
+				return a;
 			}
 		}
 		else if(args.size() == 2) {
@@ -151,9 +188,26 @@ public class TArray implements Val, IIterable{
 		}
 		return TUndefined.getInstance();
 	}
+	
+	public class TArrayIterator implements Iterator<Val> {
+		private Iterator<Var> a;
+		public TArrayIterator(TArray a) {
+			this.a = a.values.iterator();
+		}
+		
+		@Override
+		public boolean hasNext() {
+			return a.hasNext();
+		}
+
+		@Override
+		public Val next() {
+			return a.next().get();
+		}
+	}
 
 	@Override
 	public Iterator<Val> iterator() {
-		return null;
+		return new TArrayIterator(this);
 	}
 }

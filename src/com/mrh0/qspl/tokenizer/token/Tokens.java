@@ -102,6 +102,8 @@ public class Tokens {
 			return true;
 		if(c >= 'a' && c <= 'z')
 			return true;
+		if(c == '$')
+			return true;
 		return false;
 	}
 	
@@ -141,11 +143,27 @@ public class Tokens {
 		return false;
 	}
 	
+	public static boolean isBracket(String s) {
+		if(s.length() > 1)
+			return false;
+		char c = s.charAt(0);
+		if(c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}')
+			return true;
+		return false;
+	}
+	
 	public static boolean isOpenBracket(char c) {
 		return (c == '(' || c == '['|| c == '{');
 	}
 	
 	public static boolean isCloseBracket(char c) {
+		return (c == ')' || c == ']'|| c == '}');
+	}
+	
+	public static boolean isCloseBracket(String s) {
+		if(s.length() > 1)
+			return false;
+		char c = s.charAt(0);
 		return (c == ')' || c == ']'|| c == '}');
 	}
 	

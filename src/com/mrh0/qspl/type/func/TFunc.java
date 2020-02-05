@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 import com.mrh0.qspl.interpreter.evaluator.EvalResult;
 import com.mrh0.qspl.io.console.Console;
-import com.mrh0.qspl.type.TNumber;
 import com.mrh0.qspl.type.Val;
 import com.mrh0.qspl.type.Var;
+import com.mrh0.qspl.type.number.TNumber;
 import com.mrh0.qspl.vm.VM;
 
 public abstract class TFunc implements Val{

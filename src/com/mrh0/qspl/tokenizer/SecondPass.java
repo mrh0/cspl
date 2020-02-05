@@ -36,6 +36,9 @@ public class SecondPass {
 					case "new":
 						newCall = true;
 						continue;
+					case "$":
+						newCall = true;
+						continue;
 					case "func":
 						funcCall = true;
 						break;

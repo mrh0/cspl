@@ -1,7 +1,7 @@
 package com.mrh0.qspl.type.iterator;
 
-import com.mrh0.qspl.type.TNumber;
 import com.mrh0.qspl.type.Val;
+import com.mrh0.qspl.type.number.TNumber;
 
 public class TRangeIterator extends TIterator{
 	
@@ -22,7 +22,7 @@ public class TRangeIterator extends TIterator{
 
 	@Override
 	public Val next() {
-		return start < end?new TNumber(i++):new TNumber(i--);
+		return start < end?TNumber.create(i++):TNumber.create(i--);
 	}
 	
 	@Override

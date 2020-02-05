@@ -143,8 +143,12 @@ public class FirstPass {
 				consume(c, TokenType.OPERATOR);
 				
 				String fs = ctoken.toString();
-				if(fs.length() < 2)
+				if(fs.length() < 2) {
+					Token p = getPervious();
+					if(fs.equals("-") && (!p.isIdentifier() && !p.isLiteral() && !p.isValKeyword() && !p.isString() && !Tokens.isCloseBracket(p.getToken())))
+						ctype=TokenType.LITERAL;
 					continue;
+				}
 				if(Tokens.isComment(fs.substring(fs.length() - 2))) {
 					inlineComment = true;
 					ctoken = new StringBuilder().append(fs.substring(0, fs.length() - 2));
@@ -226,6 +230,10 @@ public class FirstPass {
 	
 	private void consume(TokenType t) {
 		ctype = t;
+	}
+	
+	private Token getPervious() {
+		return tokens.get(tokens.size()-1);
 	}
 	
 	//Create token:
