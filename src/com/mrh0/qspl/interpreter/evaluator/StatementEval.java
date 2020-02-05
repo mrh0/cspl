@@ -12,11 +12,11 @@ import com.mrh0.qspl.type.TArray;
 import com.mrh0.qspl.type.TContainer;
 import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
-import com.mrh0.qspl.type.Var;
 import com.mrh0.qspl.type.func.TFunc;
 import com.mrh0.qspl.type.iterator.IIterable;
 import com.mrh0.qspl.type.iterator.TRangeIterator;
 import com.mrh0.qspl.type.number.TNumber;
+import com.mrh0.qspl.type.var.Var;
 import com.mrh0.qspl.type.iterator.TMiddleManIterator;
 import com.mrh0.qspl.vm.VM;
 
@@ -229,10 +229,10 @@ public class StatementEval {
 				case TAIL_KEYWORD:
 					switch(t.getToken()) {
 						case "out":
-							Console.g.log(vals.isEmpty()?TUndefined.getInstance():vals.peek().getValue());
+							Console.g.log(vals.isEmpty()?TUndefined.getInstance():vals.peek());
 							break;
 						case "err":
-							Console.g.err(vals.isEmpty()?TUndefined.getInstance():vals.peek().getValue());
+							Console.g.err(vals.isEmpty()?TUndefined.getInstance():vals.peek());
 							break;
 						case "val":
 							if(vals.peek().isVariable())
@@ -358,8 +358,13 @@ public class StatementEval {
 		for(int i = 0; i < l.length; i++) {
 			args.add(new StatementEval(l[i], vm, BlockType.CONTAINER, bvals).eval().getResult());
 		}
-		if(toAccess.isFunction())
-			return TFunc.from(toAccess).execute(vm, TUndefined.getInstance(), args);
+		if(toAccess.isFunction()) {
+			TFunc f = TFunc.from(toAccess);
+			for(int i = 0; i < args.size(); i++) {
+				
+			}
+			return f.execute(vm, TUndefined.getInstance(), args);
+		}
 		return new EvalResult(toAccess.accessor(args));
 	}
 }

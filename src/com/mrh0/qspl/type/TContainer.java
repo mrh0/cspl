@@ -6,6 +6,9 @@ import java.util.Map;
 
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.type.number.TNumber;
+import com.mrh0.qspl.type.var.ContainerSubstituteVar;
+import com.mrh0.qspl.type.var.Var;
+import com.mrh0.qspl.type.var.VarDef;
 import com.mrh0.qspl.util.StringUtil;
 
 public class TContainer implements Val{
@@ -64,7 +67,7 @@ public class TContainer implements Val{
 	}
 	
 	public void put(Val v) {
-		if(v.isVariable()) {
+		if(v.isDefinition()) {
 			Var var = (Var)v;
 			map.put(var.getName(), new Var(var));
 			if(!keyIndecies.contains(var.getName()))

@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import com.mrh0.qspl.type.iterator.IIterable;
 import com.mrh0.qspl.type.number.TNumber;
+import com.mrh0.qspl.type.var.Var;
 
 public class TArray implements Val, IIterable{
 	

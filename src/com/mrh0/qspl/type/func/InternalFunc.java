@@ -24,6 +24,6 @@ public class InternalFunc extends TFunc{
 
 	@Override
 	public EvalResult execute(VM vm, Val _this, ArrayList<Val> args) {
-		return func.execute(vm, _this, args);
+		return new EvalResult(func.execute(vm, _this, args));
 	}
 }

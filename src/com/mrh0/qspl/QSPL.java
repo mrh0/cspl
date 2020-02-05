@@ -1,6 +1,7 @@
 package com.mrh0.qspl;
 
 import com.mrh0.qspl.internal.ExtMath;
+import com.mrh0.qspl.internal.ExtUtil;
 import com.mrh0.qspl.interpreter.Interpreter;
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.io.file.Read;
@@ -23,11 +24,12 @@ public class QSPL {
 		vm = new VM();
 		
 		vm.include(Include.fromExtension(new ExtMath()));
+		vm.include(Include.fromExtension(new ExtUtil()));
 		
 		long start2 = TimeUtil.getMilis();
 		double i=0d;
 		double x = 0d;
-		while(i < 100000000d) {
+		while(i < 10000000d) {
 			x = 5 * 6 + i;
 			i++;
 		}

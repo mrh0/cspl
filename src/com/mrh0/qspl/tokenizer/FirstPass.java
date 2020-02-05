@@ -171,6 +171,10 @@ public class FirstPass {
 				consume(c, TokenType.APPEND);
 				continue;
 			}
+			else if(ctype == TokenType.APPEND && ctoken.length() == 1 && Tokens.canBeIdentifier(c)) {
+				consume(c, TokenType.IDENTIFIER);
+				continue;
+			}
 			else if(ctype == TokenType.IDENTIFIER && Tokens.canBeIdentifier(c)) {
 				consume(c, TokenType.IDENTIFIER);
 				continue;
@@ -205,7 +209,7 @@ public class FirstPass {
 			
 			
 			
-			error("Unknown char: '" + c + "'");
+			error("Unknown char: '" + c + "':'" + ctype + "'");
 		}
 		end();
 		while(!bracketBalancer.isEmpty())

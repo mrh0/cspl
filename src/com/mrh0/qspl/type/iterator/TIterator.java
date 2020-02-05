@@ -3,7 +3,7 @@ package com.mrh0.qspl.type.iterator;
 import java.util.Iterator;
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.type.Val;
-import com.mrh0.qspl.type.Var;
+import com.mrh0.qspl.type.var.Var;
 
 public abstract class TIterator implements Val, Iterator<Val>, IIterable{
 

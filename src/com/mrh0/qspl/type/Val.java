@@ -14,7 +14,9 @@ public interface Val {
 	public boolean booleanValue();
 	public String getTypeName();
 	@Deprecated
-	public Object getValue();
+	public default Object getValue() {
+		return this;
+	}
 	
 	//Defaults:
 	public default boolean isUndefined() {
@@ -49,8 +51,16 @@ public interface Val {
 		return false;
 	}
 	
+	public default boolean isAtom() {
+		return false;
+	}
+	
 	public default boolean isIterable() {
 		return this instanceof IIterable;
+	}
+	
+	public default boolean isDefinition() {
+		return false;
 	}
 	
 	//Arithmetic Operations:

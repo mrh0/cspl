@@ -10,11 +10,6 @@ public class TUndefined implements Val{
 	}
 
 	@Override
-	public int getType() {
-		return 0;
-	}
-
-	@Override
 	public Val duplicate() {
 		return TUndefined.getInstance();
 	}

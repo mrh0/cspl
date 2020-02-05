@@ -104,6 +104,8 @@ public class Tokens {
 			return true;
 		if(c == '$')
 			return true;
+		if(c == '_')
+			return true;
 		return false;
 	}
 	

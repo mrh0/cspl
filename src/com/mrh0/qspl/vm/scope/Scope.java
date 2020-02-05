@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
-import com.mrh0.qspl.type.Var;
+import com.mrh0.qspl.type.var.Var;
 
 public class Scope {
 	private Map<String, Var> variables;

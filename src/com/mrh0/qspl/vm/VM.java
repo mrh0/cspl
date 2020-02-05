@@ -1,16 +1,11 @@
 package com.mrh0.qspl.vm;
 
-import java.util.ArrayList;
 import java.util.ListIterator;
 import java.util.Stack;
-
-import com.mrh0.qspl.interpreter.evaluator.EvalResult;
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.type.TContainer;
-import com.mrh0.qspl.type.Val;
-import com.mrh0.qspl.type.Var;
-import com.mrh0.qspl.type.func.IFunc;
-import com.mrh0.qspl.type.func.InternalFunc;
+import com.mrh0.qspl.type.TUndefined;
+import com.mrh0.qspl.type.var.Var;
 import com.mrh0.qspl.vm.scope.Scope;
 import com.mrh0.qspl.vm.scope.Scope.Policy;
 
@@ -25,13 +20,6 @@ public class VM {
 		root = new Scope("origin");
 		scopeStack.add(root);
 		exports = new TContainer();
-		
-		IFunc f = (VM vm, Val _this, ArrayList<Val> args) -> {
-			System.out.println("Hello!");
-			return new EvalResult();
-		};
-		
-		setVariable(new Var("test", new InternalFunc(f)));
 	}
 	
 	public Scope getCurrentScope() {
@@ -41,6 +29,8 @@ public class VM {
 	}
 	
 	public Var getVariable(String name) {
+		if(name.equals("_"))
+			return new Var("_", TUndefined.getInstance());
 		ListIterator<Scope> it = scopeStack.listIterator(scopeStack.size());
 		Scope s = null;
 		while(it.hasPrevious()) {
@@ -57,6 +47,8 @@ public class VM {
 	}
 	
 	public Var defVariable(String name) {
+		if(name.equals("_"))
+			return new Var("_", TUndefined.getInstance());
 		ListIterator<Scope> it = scopeStack.listIterator(scopeStack.size());
 		Scope s = null;
 		while(it.hasPrevious()) {
@@ -77,6 +69,8 @@ public class VM {
 	}
 	
 	public Var setVariable(Var var) {
+		if(var.getName().equals("_"))
+			return new Var("_", TUndefined.getInstance());
 		Var v = defVariable(var.getName());
 		v.assign(var.get());
 		return v;

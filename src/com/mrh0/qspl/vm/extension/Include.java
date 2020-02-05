@@ -8,7 +8,7 @@ import com.mrh0.qspl.io.file.FileIO;
 import com.mrh0.qspl.tokenizer.Tokenizer;
 import com.mrh0.qspl.type.TContainer;
 import com.mrh0.qspl.type.TUndefined;
-import com.mrh0.qspl.type.Var;
+import com.mrh0.qspl.type.var.Var;
 import com.mrh0.qspl.vm.VM;
 
 public class Include {

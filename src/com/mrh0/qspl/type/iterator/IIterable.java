@@ -2,7 +2,7 @@ package com.mrh0.qspl.type.iterator;
 
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.type.Val;
-import com.mrh0.qspl.type.Var;
+import com.mrh0.qspl.type.var.Var;
 
 public interface IIterable extends Iterable<Val>{
 	public static IIterable from(Val v) {

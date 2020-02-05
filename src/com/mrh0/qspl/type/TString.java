@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.type.number.TNumber;
+import com.mrh0.qspl.type.var.Var;
 
 public class TString implements Val{
 
