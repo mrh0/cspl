@@ -174,14 +174,14 @@ exit; //Add 'exit;' if the line after an indented line is last line of the progr
 
 //Foreach v in g:
 a = new [1,2,3,4];
-v in a::
+let v in a::
 	out v; // Prints all values
-k of a::
+let k of a::
 	out k; // Prints all keys
 o = new {a=1, b=2, c=3};
-v in o::
+let v in o::
 	out v; // Prints all values
-k of o::
+let k of o::
 	out v; // Prints all keys
   
 j = 5;
