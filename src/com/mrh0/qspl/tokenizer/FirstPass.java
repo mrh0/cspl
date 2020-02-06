@@ -282,17 +282,19 @@ public class FirstPass {
 	
 	//Change token properties before creating:
 	private TokenType lastCheck(String token) {
-		if(Tokens.isOpKeyword(token)) {
-			return TokenType.OP_KEYWORD;
-		}
-		else if(Tokens.isInlineKeyword(token)) {
-			return TokenType.KEYWORD;
-		}
-		else if(Tokens.isValueKeyword(token)) {
-			return TokenType.VAL_KEYWORD;
-		}
-		else if(Tokens.isTailKeyword(token)) {
-			return TokenType.TAIL_KEYWORD;
+		if(ctype == TokenType.IDENTIFIER) {
+			if(Tokens.isOpKeyword(token)) {
+				return TokenType.OP_KEYWORD;
+			}
+			else if(Tokens.isInlineKeyword(token)) {
+				return TokenType.KEYWORD;
+			}
+			else if(Tokens.isValueKeyword(token)) {
+				return TokenType.VAL_KEYWORD;
+			}
+			else if(Tokens.isTailKeyword(token)) {
+				return TokenType.TAIL_KEYWORD;
+			}
 		}
 		return ctype;
 	}

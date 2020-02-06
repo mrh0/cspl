@@ -5,6 +5,7 @@ import com.mrh0.qspl.interpreter.evaluator.EvalResult;
 import com.mrh0.qspl.interpreter.evaluator.StatementEval;
 import com.mrh0.qspl.tokenizer.token.TokenBlock;
 import com.mrh0.qspl.type.TContainer;
+import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
 import com.mrh0.qspl.vm.VM;
 import com.mrh0.qspl.vm.scope.Scope;

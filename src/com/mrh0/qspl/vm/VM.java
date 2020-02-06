@@ -5,6 +5,7 @@ import java.util.Stack;
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.type.TContainer;
 import com.mrh0.qspl.type.TUndefined;
+import com.mrh0.qspl.type.Val;
 import com.mrh0.qspl.type.var.Var;
 import com.mrh0.qspl.vm.scope.Scope;
 import com.mrh0.qspl.vm.scope.Scope.Policy;
@@ -14,6 +15,7 @@ public class VM {
 	private Stack<Scope> scopeStack;
 	private TContainer exports;
 	private Scope root;
+	private Val previous;
 	
 	public VM() {
 		scopeStack = new Stack<Scope>();
@@ -101,5 +103,13 @@ public class VM {
 	
 	public TContainer getExports() {
 		return exports;
+	}
+	
+	public void setPreviousResult(Val v) {
+		this.previous = v;
+	}
+	
+	public Val getPreviousResult() {
+		return this.previous;
 	}
 }

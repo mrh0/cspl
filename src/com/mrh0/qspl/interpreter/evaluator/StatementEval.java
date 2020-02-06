@@ -25,17 +25,19 @@ public class StatementEval {
 	private ValStack vals;//ArrayDeque<Val>
 	private VM vm;
 	private BlockType bt;
+	private boolean blockPass = false;
 	
 	private enum BlockType {
 		CODE, ARRAY, OBJECT, CONTAINER, ACCESSOR
 	}
 	
-	public  StatementEval(Statement s, VM vm, BlockType bt, ValStack vals) {
+	public  StatementEval(Statement s, VM vm, BlockType bt, ValStack vals, boolean blockPass) {
 		this.s = s;
 		vals.clear();
 		this.vals = vals;
 		this.vm = vm;
 		this.bt  = bt;
+		this.blockPass = blockPass;
 	}
 	
 	public  StatementEval(Statement s, VM vm, ValStack vals) {
@@ -223,6 +225,12 @@ public class StatementEval {
 						case "undefined":
 							vals.push(TUndefined.getInstance());
 							break;
+						case "else":
+							vals.push(TNumber.create(!blockPass));
+							break;
+						case "prev":
+							vals.push(vm.getPreviousResult());
+							break;
 					}
 					
 				//Tail Keyword
@@ -258,14 +266,20 @@ public class StatementEval {
 					vals.push(evalAccessorBlock((TokenBlock)t, vm, vals.pop()).getResult());
 					break;
 				case IF_BLOCK:
-					if(vals.peek().booleanValue())
-						vals.push(evalBlock((TokenBlock)t, vm).getResult());
+					blockPass = false;
+					if(vals.peek().booleanValue()) {
+						EvalResult res = evalBlock((TokenBlock)t, vm);
+						vals.push(res.getResult());
+						blockPass = true;
+					}
 					break;
 				case WHILE_BLOCK:
 					//Val r = TUndefined.getInstance();
+					blockPass = false;
 					if(vals.peek().isIterable()) {
 						Iterator<Val> it = IIterable.from(vals.peek()).iterator();
 						while(it.hasNext()) {
+							blockPass = true;
 							it.next();
 							evalBlock((TokenBlock)t, vm);
 						}
@@ -273,12 +287,14 @@ public class StatementEval {
 					}
 					else if(vals.peek().booleanValue()) {
 						evalBlock((TokenBlock)t, vm);//.getResult();
+						blockPass = true;
 						//try {Thread.sleep(500);
 						//} catch (InterruptedException e) {e.printStackTrace();}
 						i = -1;
 						this.vals.clear();
 						continue;
 					}
+					
 					break;
 			default:
 				break;
@@ -289,11 +305,11 @@ public class StatementEval {
 		// With statement result:
 		if(bt == BlockType.CODE && !vals.isEmpty()) {
 			Val v = vals.peek();
-			if(v.isVariable()) {
+			if(v.isDefinition()) {
 				vm.setVariable((Var)v);
 			}
 		}
-		return new EvalResult(vals.isEmpty()?TUndefined.getInstance():vals.pop());
+		return new EvalResult(vals.isEmpty()?TUndefined.getInstance():vals.pop(), blockPass);
 	}
 	
 	public static EvalResult evalBlock(TokenBlock b, VM vm) {
@@ -304,18 +320,21 @@ public class StatementEval {
 		Statement[] l = b.getBlock().getStatements();
 		EvalResult r = new EvalResult(TUndefined.getInstance());
 		ValStack bvals = new ValStack();
+		boolean blockPass = true;
 		for(int i = 0; i < l.length; i++) {
-			r = new StatementEval(l[i], vm, bvals).eval();
+			r = new StatementEval(l[i], vm, BlockType.CODE, bvals, blockPass).eval();
+			blockPass = r.didPass();
+			vm.setPreviousResult(r.getResult());
 		}
 		return new EvalResult(r.getResult());
 	}
 	
-	public static EvalResult evalArrayBlock(TokenBlock b, VM vm) {
+	public EvalResult evalArrayBlock(TokenBlock b, VM vm) {
 		Statement[] l = b.getBlock().getStatements();
 		TArray a;
 		ValStack bvals = new ValStack();
 		if(l.length == 1) {
-			Val r = new StatementEval(l[0], vm, BlockType.ARRAY, bvals).eval().getResult();
+			Val r = new StatementEval(l[0], vm, BlockType.ARRAY, bvals, blockPass).eval().getResult();
 			if(r.isIterable()) {
 				a = new TArray(IIterable.from(r));
 				return new EvalResult(a);
@@ -327,12 +346,12 @@ public class StatementEval {
 		
 		a = new TArray();
 		for(int i = 0; i < l.length; i++) {
-			a.add(new StatementEval(l[i], vm, BlockType.ARRAY, bvals).eval().getResult());
+			a.add(new StatementEval(l[i], vm, BlockType.ARRAY, bvals, blockPass).eval().getResult());
 		}
 		return new EvalResult(a);
 	}
 	
-	public static EvalResult evalObjectBlock(TokenBlock b, VM vm) {
+	public EvalResult evalObjectBlock(TokenBlock b, VM vm) {
 		Statement[] l = b.getBlock().getStatements();
 		for(int i = 0; i < l.length; i++) {
 			
@@ -340,23 +359,23 @@ public class StatementEval {
 		return new EvalResult(TUndefined.getInstance());
 	}
 	
-	public static EvalResult evalContainerBlock(TokenBlock b, VM vm) {
+	public EvalResult evalContainerBlock(TokenBlock b, VM vm) {
 		Statement[] l = b.getBlock().getStatements();
 		TContainer c = new TContainer();
 		ValStack bvals = new ValStack();
 		for(int i = 0; i < l.length; i++) {
-			c.add(new StatementEval(l[i], vm, BlockType.CONTAINER, bvals).eval().getResult());
+			c.add(new StatementEval(l[i], vm, BlockType.CONTAINER, bvals, blockPass).eval().getResult());
 		}
 		return new EvalResult(c);
 	}
 	
-	public static EvalResult evalAccessorBlock(TokenBlock b, VM vm, Val toAccess) {
+	public EvalResult evalAccessorBlock(TokenBlock b, VM vm, Val toAccess) {
 		Statement[] l = b.getBlock().getStatements();
 		ArrayList<Val> args = new ArrayList<Val>();
 		
 		ValStack bvals = new ValStack();
 		for(int i = 0; i < l.length; i++) {
-			args.add(new StatementEval(l[i], vm, BlockType.CONTAINER, bvals).eval().getResult());
+			args.add(new StatementEval(l[i], vm, BlockType.CONTAINER, bvals, blockPass).eval().getResult());
 		}
 		if(toAccess.isFunction()) {
 			TFunc f = TFunc.from(toAccess);
