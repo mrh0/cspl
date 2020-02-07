@@ -163,13 +163,15 @@ Flow control:
 //If x print 'Hello!'
 x:
   out "Hello!";
-  exit;
+else:
+  out "x was not true";
 exit; //Add 'exit;' if the line after an indented line is last line of the program.
   
 //While x print 'Hello!'
 x::
   out "Hello!";
-  exit;
+else: // If the while condition (x == true) is never meet.
+  out "While never ran"; 
 exit; //Add 'exit;' if the line after an indented line is last line of the program.
 
 //Foreach v in g:
