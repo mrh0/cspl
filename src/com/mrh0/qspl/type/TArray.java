@@ -3,6 +3,7 @@ package com.mrh0.qspl.type;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.type.iterator.IIterable;
 import com.mrh0.qspl.type.number.TNumber;
 import com.mrh0.qspl.type.var.Var;
@@ -28,7 +29,7 @@ public class TArray implements Val, IIterable{
 		}
 	}
 	
-	public TArray(String[] strs) {
+	public TArray(String...strs) {
 		values = new ArrayList<Var>();
 		for(int i = 0; i < strs.length; i++) {
 			this.add(new TString(strs[i]));
@@ -87,6 +88,11 @@ public class TArray implements Val, IIterable{
 	
 	public void set(int index, Var v) {
 		values.set(index, v);
+	}
+	
+	@Override
+	public boolean isArray() {
+		return true;
 	}
 	
 	@Override
@@ -210,5 +216,52 @@ public class TArray implements Val, IIterable{
 	@Override
 	public Iterator<Val> iterator() {
 		return new TArrayIterator(this);
+	}
+	
+	public void remove(int i) {
+		values.remove(i);
+	}
+	
+	public static TArray from(Val v) {
+		if(v instanceof TArray)
+			return (TArray)v;
+		if(v instanceof Var && v.isArray())
+			return from(((Var)v).get());
+		Console.g.err("Cannot convert " + v.getTypeName() + " to array.");
+		return null;
+	}
+	
+	@Override
+	public Val rotateLeft(Val v) {
+		int rot = TNumber.from(v).integerValue();
+		for(int i = 0; i < rot; i++)
+			values.add(values.remove(0));
+		return this;
+	}
+	
+	@Override
+	public Val rotateRight(Val v) {
+		int rot = TNumber.from(v).integerValue();
+		for(int i = 0; i < rot; i++)
+			values.add(0, values.remove(values.size()-1));
+		return this;
+	}
+	
+	@Override
+	public Val shiftLeft(Val v) {
+		TArray a = new TArray();
+		int shift = TNumber.from(v).integerValue();
+		for(int i = 0; i < shift; i++)
+			a.add(values.remove(0));
+		return a;
+	}
+	
+	@Override
+	public Val shiftRight(Val v) {
+		TArray a = new TArray();
+		int shift = TNumber.from(v).integerValue();
+		for(int i = 0; i < shift; i++)
+			a.add(values.remove(values.size()-1));
+		return a;
 	}
 }

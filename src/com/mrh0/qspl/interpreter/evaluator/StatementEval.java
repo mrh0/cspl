@@ -12,12 +12,15 @@ import com.mrh0.qspl.type.TArray;
 import com.mrh0.qspl.type.TContainer;
 import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
+import com.mrh0.qspl.type.func.Arguments;
 import com.mrh0.qspl.type.func.TFunc;
+import com.mrh0.qspl.type.func.UserFunc;
 import com.mrh0.qspl.type.iterator.IIterable;
 import com.mrh0.qspl.type.iterator.TRangeIterator;
 import com.mrh0.qspl.type.number.TNumber;
 import com.mrh0.qspl.type.var.Var;
-import com.mrh0.qspl.type.iterator.TMiddleManIterator;
+import com.mrh0.qspl.type.var.VarDef;
+import com.mrh0.qspl.type.iterator.TVariableIterator;
 import com.mrh0.qspl.vm.VM;
 
 public class StatementEval {
@@ -118,6 +121,23 @@ public class StatementEval {
 							vals.push(TNumber.create(vals.pop().compare(hl)!=-1));
 							break;
 							
+						case "<<":
+							hl = vals.pop();
+							vals.push(vals.pop().shiftLeft(hl));
+							break;
+						case ">>":
+							hl = vals.pop();
+							vals.push(vals.pop().shiftRight(hl));
+							break;
+						case "<<<":
+							hl = vals.pop();
+							vals.push(vals.pop().rotateLeft(hl));
+							break;
+						case ">>>":
+							hl = vals.pop();
+							vals.push(vals.pop().rotateRight(hl));
+							break;
+							
 						case "&&":
 							hl = vals.pop();
 							vals.push(vals.pop().logicalAnd(hl));
@@ -196,7 +216,7 @@ public class StatementEval {
 					switch(t.getToken()) {
 						case "in":
 							hl = vals.pop();
-							vals.push(new TMiddleManIterator(Var.from(vals.pop()), IIterable.from(hl)));
+							vals.push(new TVariableIterator(Var.from(vals.pop()), IIterable.from(hl)));
 							break;
 						case "let":
 							if(!vals.isEmpty() && bt == BlockType.CODE) {
@@ -210,6 +230,19 @@ public class StatementEval {
 								Console.g.err("Keyword 'let' used in illegal context.");
 							}
 							break;
+							case "func":
+								hl = vals.pop();
+								vl = vals.pop();
+								Token nt = s.getToken(++i);
+								
+								if(!hl.isContainer() || !vl.isVariable() || !(nt instanceof TokenBlock))
+									Console.g.err("Malformed function definition.");
+								
+								TokenBlock nblock = (TokenBlock)nt;
+								//System.out.println("Def func " + vl +":"+ hl+":"+nblock);
+								vl.assign(new UserFunc(nblock, TContainer.from(hl)));
+								vm.setVariable((Var)vl);
+								break;
 						}
 					break;
 				
@@ -239,16 +272,21 @@ public class StatementEval {
 						case "out":
 							Console.g.log(vals.isEmpty()?TUndefined.getInstance():vals.peek());
 							break;
-						case "err":
+						case "error":
 							Console.g.err(vals.isEmpty()?TUndefined.getInstance():vals.peek());
 							break;
 						case "val":
 							if(vals.peek().isVariable())
 								vals.push(((Var)vals.pop()).get());
 							break;
-						case "del":
-							//vm.delVariable();
+						case "delete":
+							if(vals.peek().isVariable())
+								((Var)vals.pop()).delete(vm);
+							else
+								Console.g.err("Cannot preform delete on type " + vals.peek().getTypeName());
 							break;
+						case "exit":
+							return new EvalResult(vals.pop());
 					}
 					break;
 					
@@ -264,6 +302,9 @@ public class StatementEval {
 					break;
 				case ACCESSOR_BLOCK:
 					vals.push(evalAccessorBlock((TokenBlock)t, vm, vals.pop()).getResult());
+					break;
+				case ARG_BLOCK:
+					vals.push(evalArgumentBlock((TokenBlock)t, vm).getResult());
 					break;
 				case IF_BLOCK:
 					blockPass = false;
@@ -369,21 +410,65 @@ public class StatementEval {
 		return new EvalResult(c);
 	}
 	
+	public EvalResult evalArgumentBlock(TokenBlock b, VM vm) {
+		Statement[] l = b.getBlock().getStatements();
+		TContainer c = new TContainer();
+		ValStack bvals = new ValStack();
+		for(int i = 0; i < l.length; i++) {
+			Val r = new StatementEval(l[i], vm, BlockType.CONTAINER, bvals, blockPass).eval().getResult();
+			if(r.isDefinition())
+				c.add(r);
+			else if(r.isVariable())
+				c.add(new VarDef(Var.from(r).getName(), TUndefined.getInstance()));
+			else
+				Console.g.err("Illegal function definition parameter: " + r);
+		}
+		return new EvalResult(c);
+	}
+	
 	public EvalResult evalAccessorBlock(TokenBlock b, VM vm, Val toAccess) {
 		Statement[] l = b.getBlock().getStatements();
-		ArrayList<Val> args = new ArrayList<Val>();
+		ArrayList<Val> stmtResult = new ArrayList<Val>();
 		
 		ValStack bvals = new ValStack();
 		for(int i = 0; i < l.length; i++) {
-			args.add(new StatementEval(l[i], vm, BlockType.CONTAINER, bvals, blockPass).eval().getResult());
+			stmtResult.add(new StatementEval(l[i], vm, BlockType.CONTAINER, bvals, blockPass).eval().getResult());
 		}
 		if(toAccess.isFunction()) {
+			ArrayList<Val> args = new ArrayList<Val>();
+			boolean isNameMode = false;
+			int assigned = 0;
 			TFunc f = TFunc.from(toAccess);
-			for(int i = 0; i < args.size(); i++) {
-				
+			for(int i = 0; i < stmtResult.size(); i++) {
+				Val v = stmtResult.get(i);
+				if(v.isDefinition()) {
+					Var d = (Var)v;
+					isNameMode = true;
+					boolean found = false;
+					for(int j = assigned; j < f.getNamedArgs(); j++) {
+						if(f.getArgName(j).equals(d.getName())) {
+							found = true;
+							for(int k = args.size(); k < j; k++) {
+								args.add(f.getDefault(k));
+							}
+							args.add(v);
+							break;
+						}
+					}
+					if(!found)
+						Console.g.err("Argument " + d.toString() + " is not used in function " + toAccess.toString());
+					assigned++;
+					continue;
+				}
+				else if(isNameMode) {
+					Console.g.err("Late use of unnamed parameter in function call.");
+					return new EvalResult(TUndefined.getInstance());
+				}
+				args.add(v);
+				assigned++;
 			}
-			return f.execute(vm, TUndefined.getInstance(), args);
+			return f.execute(vm, TUndefined.getInstance(), new Arguments(args));
 		}
-		return new EvalResult(toAccess.accessor(args));
+		return new EvalResult(toAccess.accessor(stmtResult));
 	}
 }

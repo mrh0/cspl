@@ -1,12 +1,11 @@
 package com.mrh0.qspl.type.func;
 
-import java.util.ArrayList;
-
 import com.mrh0.qspl.interpreter.evaluator.EvalResult;
 import com.mrh0.qspl.io.console.Console;
+import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
-import com.mrh0.qspl.type.number.TNumber;
 import com.mrh0.qspl.type.var.Var;
+import com.mrh0.qspl.util.StringUtil;
 import com.mrh0.qspl.vm.VM;
 
 public abstract class TFunc implements Val{
@@ -40,8 +39,14 @@ public abstract class TFunc implements Val{
 	public boolean isFunction() {
 		return true;
 	}
+	
+	public abstract String getArgName(int i);
+	public abstract int getNamedArgs();
+	public Val getDefault(int i) {
+		return TUndefined.getInstance();
+	}
 
-	public abstract EvalResult execute(VM vm, Val _this, ArrayList<Val> args);
+	public abstract EvalResult execute(VM vm, Val _this, Arguments args);
 	
 	public static TFunc from(Val v) {
 		if(v instanceof TFunc)
@@ -50,5 +55,10 @@ public abstract class TFunc implements Val{
 			return from(((Var)v).get());
 		Console.g.err("Cannot convert " + v.getTypeName() + " to function.");
 		return null;
+	}
+	
+	@Override
+	public String toString() {
+		return "func";
 	}
 }

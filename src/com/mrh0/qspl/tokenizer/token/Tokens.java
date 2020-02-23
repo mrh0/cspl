@@ -33,7 +33,7 @@ public class Tokens {
 		switch(s) {
 			case "out":
 				return true;
-			case "err":
+			case "error":
 				return true;
 			case "val":
 				return true;
@@ -43,7 +43,7 @@ public class Tokens {
 				return true;
 			case "export":
 				return true;
-			case "del":
+			case "delete":
 				return true;
 			case "with":
 				return true;

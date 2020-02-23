@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
+import com.mrh0.qspl.vm.VM;
 
 public class Var implements Val{
 	
@@ -29,6 +30,10 @@ public class Var implements Val{
 		this.name = v.getName();
 		this.value = v.value;
 		this.locked = v.locked;
+	}
+	
+	public void delete(VM vm) {
+		vm.delVariable(this);
 	}
 	
 	@Override

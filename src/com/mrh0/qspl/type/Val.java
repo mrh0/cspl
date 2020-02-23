@@ -129,6 +129,23 @@ public interface Val {
 		return TUndefined.getInstance();
 	}
 	
+	public default Val shiftLeft(Val v) {
+		Console.g.err("Cannot preform operation shift-left on " + this.getTypeName() + " with " + v.getTypeName());
+		return TUndefined.getInstance();
+	}
+	public default Val shiftRight(Val v) {
+		Console.g.err("Cannot preform operation shift-right on " + this.getTypeName() + " with " + v.getTypeName());
+		return TUndefined.getInstance();
+	}
+	public default Val rotateLeft(Val v) {
+		Console.g.err("Cannot preform operation rotate-left on " + this.getTypeName() + " with " + v.getTypeName());
+		return TUndefined.getInstance();
+	}
+	public default Val rotateRight(Val v) {
+		Console.g.err("Cannot preform operation rotate-right on " + this.getTypeName() + " with " + v.getTypeName());
+		return TUndefined.getInstance();
+	}
+	
 	public default boolean equals(Val v) {
 		//Console.g.err("Default equals operation on " + this.getTypeName() + " with " + v.getTypeName());
 		return equals((Object)v);

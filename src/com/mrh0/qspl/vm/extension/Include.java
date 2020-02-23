@@ -57,8 +57,8 @@ public class Include {
 		return new TContainer();
 	}
 	
-	public static TContainer fromExtension(Extension ext) {
-		ExtensionScope es = new ExtensionScope();
+	public static TContainer fromExtension(Module ext) {
+		ModuleScope es = new ModuleScope();
 		ext.extend(es);
 		return es.getExports();
 	}

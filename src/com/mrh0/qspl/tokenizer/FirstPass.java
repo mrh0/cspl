@@ -295,6 +295,9 @@ public class FirstPass {
 			else if(Tokens.isTailKeyword(token)) {
 				return TokenType.TAIL_KEYWORD;
 			}
+			else if(ctoken.charAt(0) == ':') {
+				return TokenType.ATOM;
+			}
 		}
 		return ctype;
 	}

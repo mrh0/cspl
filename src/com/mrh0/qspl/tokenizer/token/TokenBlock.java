@@ -28,6 +28,8 @@ public class TokenBlock extends Token{
 				return ":{"+block.toString()+"}";
 			case WHILE_BLOCK:
 				return "::{"+block.toString()+"}";
+			case ARG_BLOCK:
+				return "f["+block.toString()+"]";
 		}
 		return "{"+block.toString()+"}";
 	}

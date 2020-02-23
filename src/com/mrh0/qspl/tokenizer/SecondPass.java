@@ -80,7 +80,7 @@ public class SecondPass {
 				
 				//stmts.push(TokenType.CODE_BLOCK);
 				if(funcCall) {
-					stmts.push(s.equals("[")?TokenType.OBJ_BLOCK:TokenType.CODE_BLOCK, append);
+					stmts.push(s.equals("[")?TokenType.ARG_BLOCK:TokenType.CODE_BLOCK, append);
 					
 					append = false;
 					appendType = 0;

@@ -1,12 +1,14 @@
 package com.mrh0.qspl.type;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import com.mrh0.qspl.io.console.Console;
+import com.mrh0.qspl.type.iterator.IIterable;
 import com.mrh0.qspl.type.number.TNumber;
 import com.mrh0.qspl.type.var.Var;
 
-public class TString implements Val{
+public class TString implements Val, IIterable{
 
 	private String value;
 	
@@ -155,5 +157,29 @@ public class TString implements Val{
 			return TNumber.create(value.matches(TString.from(v).get()));
 		}
 		return Val.super.assign(v);
+	}
+	
+	public class TStringIterator implements Iterator<Val> {
+		private int index;
+		private String str;
+		public TStringIterator(TString a) {
+			str = a.get();
+			index = 0;
+		}
+		
+		@Override
+		public boolean hasNext() {
+			return index < str.length();
+		}
+
+		@Override
+		public Val next() {
+			return new TString(str.charAt(index++));
+		}
+	}
+
+	@Override
+	public Iterator<Val> iterator() {
+		return new TStringIterator(this);
 	}
 }

@@ -1,14 +1,13 @@
 package com.mrh0.qspl.type;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.type.number.TNumber;
 import com.mrh0.qspl.type.var.ContainerSubstituteVar;
 import com.mrh0.qspl.type.var.Var;
-import com.mrh0.qspl.type.var.VarDef;
 import com.mrh0.qspl.util.StringUtil;
 
 public class TContainer implements Val{
@@ -24,6 +23,15 @@ public class TContainer implements Val{
 	public TContainer(Map<String, Var> map, ArrayList<String> keys) {
 		this.keyIndecies = keys;
 		this.map = map;
+	}
+	
+	public TContainer(Var...values) {
+		this.keyIndecies = new ArrayList<String>();
+		this.map = new HashMap<String, Var>();
+		for(Var v : values) {
+			keyIndecies.add(v.getName());
+			map.put(v.getName(), v);
+		}
 	}
 	
 	public enum ContainerType {
@@ -66,6 +74,10 @@ public class TContainer implements Val{
 		return this;
 	}
 	
+	public int size() {
+		return keyIndecies.size();
+	}
+	
 	public void put(Val v) {
 		if(v.isDefinition()) {
 			Var var = (Var)v;
@@ -86,7 +98,7 @@ public class TContainer implements Val{
 	}
 	
 	public Val get(String key) {
-		return map.getOrDefault(key, new ContainerSubstituteVar(key, this)); //return ref instead
+		return new ContainerSubstituteVar(map.getOrDefault(key, new ContainerSubstituteVar(key, this)), this); //return ref instead
 	}
 	
 	@Override
@@ -140,5 +152,25 @@ public class TContainer implements Val{
 	
 	public ArrayList<String> getKeys(){
 		return keyIndecies;
+	}
+	
+	public void remove(Var v) {
+		if(map.containsKey(v.getName())) {
+			map.remove(v.getName());
+			keyIndecies.remove(v.getName());
+		}
+	}
+	
+	public String varArrayString() {
+		StringBuilder r = new StringBuilder();
+		r.append("[");
+		for(int i = 0; i < size(); i++) {
+			Var v = map.get(keyIndecies.get(i));
+			r.append(v.isUndefined()?v.getName():(v.getName()+"="+v.getValue()));
+			if(i+1 < size())
+				r.append(", ");
+		}
+		r.append("]");
+		return r.toString();
 	}
 }

@@ -1,18 +1,18 @@
 package com.mrh0.qspl.internal;
 
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.List;
 import com.mrh0.qspl.type.TString;
 import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
+import com.mrh0.qspl.type.func.Arguments;
 import com.mrh0.qspl.type.func.IFunc;
 import com.mrh0.qspl.type.func.InternalFunc;
 import com.mrh0.qspl.type.number.TNumber;
 import com.mrh0.qspl.vm.VM;
-import com.mrh0.qspl.vm.extension.Extension;
-import com.mrh0.qspl.vm.extension.ExtensionScope;
+import com.mrh0.qspl.vm.extension.Module;
+import com.mrh0.qspl.vm.extension.ModuleScope;
 
-public class ExtMath implements Extension {
+public class ExtMath implements Module {
 
 	@Override
 	public String getName() {
@@ -30,7 +30,7 @@ public class ExtMath implements Extension {
 	}
 
 	@Override
-	public void extend(ExtensionScope ext) {
+	public void extend(ModuleScope ext) {
 		ext.export("PI", new TNumber(Math.PI));
 		ext.export("INF", new TNumber(Double.POSITIVE_INFINITY));
 		ext.export("INFINITY", new TNumber(Double.POSITIVE_INFINITY));
@@ -39,7 +39,7 @@ public class ExtMath implements Extension {
 		
 		IFunc f;
 		
-		f = (VM vm, Val _this, ArrayList<Val> args) -> {
+		f = (VM vm, Val _this, Arguments args) -> {
 			if(args.size() == 0)
 				return TNumber.create(0);
 			Val min = args.get(0);
@@ -51,7 +51,7 @@ public class ExtMath implements Extension {
 		};
 		ext.export("min", new InternalFunc(f));
 		
-		f = (VM vm, Val _this, ArrayList<Val> args) -> {
+		f = (VM vm, Val _this, Arguments args) -> {
 			if(args.size() == 0)
 				return new TNumber(0);
 			Val max = args.get(0);
@@ -63,7 +63,7 @@ public class ExtMath implements Extension {
 		};
 		ext.export("max", new InternalFunc(f));
 		
-		f = (VM vm, Val _this, ArrayList<Val> args) -> {
+		f = (VM vm, Val _this, Arguments args) -> {
 			if(args.size() < 3)
 				return new TNumber(0);
 			double v = TNumber.from(args.get(0)).get();
@@ -75,28 +75,28 @@ public class ExtMath implements Extension {
 		};
 		ext.export("clamp", new InternalFunc(f));
 		
-		f = (VM vm, Val _this, ArrayList<Val> args) -> {
+		f = (VM vm, Val _this, Arguments args) -> {
 			if(args.size() == 0)
 				return new TNumber(0);
 			return new TNumber(args.get(0).booleanValue()?1:0);
 		};
 		ext.export("if", new InternalFunc(f));
 		
-		f = (VM vm, Val _this, ArrayList<Val> args) -> {
+		f = (VM vm, Val _this, Arguments args) -> {
 			if(args.size() < 3)
 				return new TNumber(0);
 			return args.get(0).booleanValue()?args.get(1):args.get(2);
 		};
 		ext.export("condition", new InternalFunc(f));
 		
-		f = (VM vm, Val _this, ArrayList<Val> args) -> {
+		f = (VM vm, Val _this, Arguments args) -> {
 			if(args.size() == 1)
 				return new TString(args.get(0).booleanValue()?"true":"false");
 			return TUndefined.getInstance();
 		};
 		ext.export("bool", new InternalFunc(f));
 		
-		f = (VM vm, Val _this, ArrayList<Val> args) -> {
+		f = (VM vm, Val _this, Arguments args) -> {
 			double from = 0;
 			double to = 1;
 			if(args.size() == 1)
@@ -113,42 +113,42 @@ public class ExtMath implements Extension {
 		};
 		ext.export("random", new InternalFunc(f));
 		
-		f = (VM vm, Val _this, ArrayList<Val> args) -> {
+		f = (VM vm, Val _this, Arguments args) -> {
 			if(args.size() == 0)
 				return TUndefined.getInstance();
 			return new TNumber((double)Math.round(TNumber.from(args.get(0)).get()));
 		};
 		ext.export("round", new InternalFunc(f));
 		
-		f = (VM vm, Val _this, ArrayList<Val> args) -> {
+		f = (VM vm, Val _this, Arguments args) -> {
 			if(args.size() == 0)
 				return TUndefined.getInstance();
 			return new TNumber((double)Math.floor(TNumber.from(args.get(0)).get()));
 		};
 		ext.export("floor", new InternalFunc(f));
 		
-		f = (VM vm, Val _this, ArrayList<Val> args) -> {
+		f = (VM vm, Val _this, Arguments args) -> {
 			if(args.size() == 0)
 				return TUndefined.getInstance();
 			return new TNumber((double)Math.ceil(TNumber.from(args.get(0)).get()));
 		};
 		ext.export("ceil", new InternalFunc(f));
 		
-		f = (VM vm, Val _this, ArrayList<Val> args) -> {
+		f = (VM vm, Val _this, Arguments args) -> {
 			if(args.size() == 0)
 				return TUndefined.getInstance();
 			return new TNumber((double)Math.abs(TNumber.from(args.get(0)).get()));
 		};
 		ext.export("abs", new InternalFunc(f));
 		
-		f = (VM vm, Val _this, ArrayList<Val> args) -> {
+		f = (VM vm, Val _this, Arguments args) -> {
 			if(args.size() == 0)
 				return TUndefined.getInstance();
 			return new TNumber(Math.sqrt(TNumber.from(args.get(0)).get()));
 		};
 		ext.export("sqrt", new InternalFunc(f));
 		
-		f = (VM vm, Val _this, ArrayList<Val> args) -> {
+		f = (VM vm, Val _this, Arguments args) -> {
 			if(args.size() < 2)
 				return TUndefined.getInstance();
 			return new TNumber(Math.pow(TNumber.from(args.get(0)).get(),TNumber.from(args.get(1)).get()));

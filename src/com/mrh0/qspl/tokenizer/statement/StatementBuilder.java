@@ -9,6 +9,7 @@ import com.mrh0.qspl.tokenizer.token.Token;
 import com.mrh0.qspl.tokenizer.token.TokenType;
 import com.mrh0.qspl.tokenizer.token.TokenVal;
 import com.mrh0.qspl.tokenizer.token.Tokens;
+import com.mrh0.qspl.type.TAtom;
 import com.mrh0.qspl.type.TString;
 import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
@@ -47,7 +48,7 @@ public class StatementBuilder {
 		String s = cur.getToken();
 		
 		if(t == TokenType.IDENTIFIER  || t == TokenType.VAL_KEYWORD || t == TokenType.KEYWORD
-				|| t == TokenType.ACCESSOR_BLOCK || t == TokenType.OBJ_BLOCK || t == TokenType.ARY_BLOCK 
+				|| t == TokenType.ACCESSOR_BLOCK || t == TokenType.OBJ_BLOCK || t == TokenType.ARY_BLOCK  || t == TokenType.ARG_BLOCK 
 				) {//|| t == TokenType.CODE_BLOCK || t == TokenType.IF_BLOCK || t == TokenType.WHILE_BLOCK
 			postfix.add(cur);
 		}
@@ -56,6 +57,9 @@ public class StatementBuilder {
 		}
 		else if(t == TokenType.STRING) {
 			postfix.add(new TokenVal(cur.getToken(), new TString(cur.getToken()), cur.getLine()));
+		}
+		else if(t == TokenType.ATOM) {
+			postfix.add(new TokenVal(cur.getToken(), TAtom.get(cur.getToken()), cur.getLine()));
 		}
 		else if(t == TokenType.SEPERATOR) {
 			if(s.equals("("))

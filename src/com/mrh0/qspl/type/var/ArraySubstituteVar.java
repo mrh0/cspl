@@ -3,6 +3,7 @@ package com.mrh0.qspl.type.var;
 import com.mrh0.qspl.type.TArray;
 import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
+import com.mrh0.qspl.vm.VM;
 
 public class ArraySubstituteVar extends Var{
 	private TArray source;
@@ -22,6 +23,10 @@ public class ArraySubstituteVar extends Var{
 	
 	public Val getSource() {
 		return this.source;
+	}
+	
+	public void delete(VM vm) {
+		this.source.remove(index);
 	}
 }
 

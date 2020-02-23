@@ -1,11 +1,14 @@
 package com.mrh0.qspl.vm;
 
+import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Stack;
 import com.mrh0.qspl.io.console.Console;
+import com.mrh0.qspl.type.TArray;
 import com.mrh0.qspl.type.TContainer;
 import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
+import com.mrh0.qspl.type.func.Arguments;
 import com.mrh0.qspl.type.var.Var;
 import com.mrh0.qspl.vm.scope.Scope;
 import com.mrh0.qspl.vm.scope.Scope.Policy;
@@ -83,6 +86,19 @@ public class VM {
 			Var v = defVariable(key);
 			v.assign(c.get(key));
 		}
+	}
+	
+	public void setVariables(TContainer c, Arguments a) {
+		TArray args = new TArray();
+		for(int i = 0; i < a.size(); i++) {
+			if(i<c.size()) {
+				Var v = defVariable(c.getKeys().get(i));
+				v.assign(a.get(i));
+			}
+			args.add(a.get(i));
+		}
+		Var v = defVariable("arguments");
+		v.assign(args);
 	}
 	
 	public void pushScope(Scope scope) {

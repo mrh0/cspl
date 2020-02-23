@@ -22,7 +22,9 @@ public enum TokenType {
 	APPEND(17, "app"),
 	IF_BLOCK(18, "if"),
 	WHILE_BLOCK(19, "whl"),
-	VAL(20, "val");
+	VAL(20, "val"),
+	ATOM(21, "atom"),
+	ARG_BLOCK(22, "arg_b");
 	
 	private int id;
 	private String name;
