@@ -40,33 +40,38 @@ j/" "; //Splits string to array : ['Hi','my','name','is','MrH']
 Functions:
 ```
 //Define:
-x1 = func arg1, arg2:
-  exit "Hello"+arg1; //Return value.
+func x1[arg1, arg2, arg3="!"]:
+  exit "Hello"+arg1+arg3; //Return value.
   
-x2 = func arg1=7: //Function default value
+func x2[arg1="world"]: //Function default value
   exit "Hello"+arg1;
 
 //Call:
-x[" World!"]; //returns "Hello World!"
+x1[" World", arg3="?"]; //returns "Hello World?"
+x2[" World!"]; //returns "Hello World!"
+x2[]; //returns "Helloworld"
 
 //Chain (functional):
-double = func:
+func double[]:
   exit this*2;
 x = 5;
 out x#double[]#double[]; //Prints 20
 
-array = new [1,2,3,4];
-func o, i, a:
-  exit (o+1);
-out array#map[prev]; //Prints [2,3,4,5]
+arr = new [1,2,3,4];
+func x3[val, index, array]:
+  exit (val+1);
+out arr#map[x3]; //Prints [2,3,4,5]
+out arr#map[[o, i, a] => {o+1}]; //Prints [2,3,4,5]
 ``` 
 Operators:
 ```
-Math: '+ - * / % ++ --'
-Assigning: '= += -= *= /='
+Math: '+ - * / % ++ -- **'
+Assigning: '= += -= *= /= %='
 Boolean: '&& || ! == < > <= >='
-Bitwise: '& | ^ ~'
+Shift & Rotate: '<< >> <<< >>>'
+Bitwise: '& | ^'
 Contains: '?'
+Round: '~'
 Is type: 'is' //Example: 56 is STRING : false (0)
 As type: 'as' //Example: 56 as STRING : "56"
 ```
