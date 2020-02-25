@@ -11,8 +11,6 @@ public class Tokens {
 	
 	public static boolean isValueKeyword(String s) {
 		switch(s) {
-			case "else":
-				return true;
 			case "prev":
 				return true;
 			case "time":
@@ -41,11 +39,17 @@ public class Tokens {
 				return true;
 			case "import":
 				return true;
+			case "importfrom":
+				return true;
 			case "export":
 				return true;
 			case "delete":
 				return true;
 			case "with":
+				return true;
+			case "assert":
+				return true;
+			case "else":
 				return true;
 		}
 		return false;
@@ -239,11 +243,11 @@ public class Tokens {
 				return -50;
 				
 			case CODE_BLOCK:
-				return -750;
+				return -200;
 			case IF_BLOCK:
-				return -750;
+				return -200;
 			case WHILE_BLOCK:
-				return -750;
+				return -200;
 				
 			case ARY_BLOCK:
 				return 25;

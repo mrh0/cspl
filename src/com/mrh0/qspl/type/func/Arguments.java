@@ -18,11 +18,13 @@ public class Arguments implements Iterable<Val> {
 	}
 	
 	public Val get(int i) {
+		if(i >= args.size())
+			return TUndefined.getInstance();
 		return args.get(i);
 	}
 	
 	public Val get(int i, Val def) {
-		if(i < args.size())
+		if(i >= args.size())
 			return def;
 		return args.get(i);
 	}

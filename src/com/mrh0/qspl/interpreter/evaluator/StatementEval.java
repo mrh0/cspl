@@ -230,19 +230,20 @@ public class StatementEval {
 								Console.g.err("Keyword 'let' used in illegal context.");
 							}
 							break;
-							case "func":
-								hl = vals.pop();
-								vl = vals.pop();
-								Token nt = s.getToken(++i);
-								
-								if(!hl.isContainer() || !vl.isVariable() || !(nt instanceof TokenBlock))
-									Console.g.err("Malformed function definition.");
-								
-								TokenBlock nblock = (TokenBlock)nt;
-								//System.out.println("Def func " + vl +":"+ hl+":"+nblock);
-								vl.assign(new UserFunc(nblock, TContainer.from(hl)));
-								vm.setVariable((Var)vl);
-								break;
+						case "func":
+							hl = vals.pop();
+							vl = vals.pop();
+							Token nt = s.getToken(i-1);
+							
+							if(!hl.isContainer() || !vl.isVariable() || !(nt instanceof TokenBlock))
+								Console.g.err("Malformed function definition." + nt);
+							
+							TokenBlock nblock = (TokenBlock)nt;
+							//System.out.println("Def func " + vl +":"+ hl+":"+nblock);
+							vl.assign(new UserFunc(nblock, TContainer.from(hl)));
+							//vm.setVariable((Var)vl);
+							vals.push(new VarDef((Var)vl));
+							break;
 						}
 					break;
 				
@@ -258,9 +259,9 @@ public class StatementEval {
 						case "undefined":
 							vals.push(TUndefined.getInstance());
 							break;
-						case "else":
+						/*case "else":
 							vals.push(TNumber.create(!blockPass));
-							break;
+							break;*/
 						case "prev":
 							vals.push(vm.getPreviousResult());
 							break;
@@ -271,6 +272,10 @@ public class StatementEval {
 					switch(t.getToken()) {
 						case "out":
 							Console.g.log(vals.isEmpty()?TUndefined.getInstance():vals.peek());
+							break;
+						case "assert":
+							if(vals.isEmpty() || !vals.peek().booleanValue())
+								Console.g.err("Assertion '"+s+"' was made false.");
 							break;
 						case "error":
 							Console.g.err(vals.isEmpty()?TUndefined.getInstance():vals.peek());
@@ -287,12 +292,15 @@ public class StatementEval {
 							break;
 						case "exit":
 							return new EvalResult(vals.pop());
+						case "else":
+							vals.push(new TNumber((vals.isEmpty() || vals.pop().booleanValue()) && !blockPass));
 					}
 					break;
 					
 				//Blocks:
 				case CODE_BLOCK:
-					vals.push(evalBlock((TokenBlock)t, vm).getResult());
+					if(!s.getToken(i+1).getToken().equals("func"))
+						vals.push(evalBlock((TokenBlock)t, vm).getResult());
 					break;
 				case OBJ_BLOCK:
 					vals.push(evalContainerBlock((TokenBlock)t, vm).getResult());

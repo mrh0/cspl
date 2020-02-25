@@ -7,6 +7,7 @@ import com.mrh0.qspl.util.StringUtil;
 public class Statement {
 	private Token[] tokens;
 	
+	
 	public Statement(List<Token> tokens) {
 		this.tokens = tokens.toArray(new Token[0]);
 		//System.out.println("Created Statement: " + tokens.toString());
@@ -28,4 +29,5 @@ public class Statement {
 	public String toString() {
 		return StringUtil.arrayToString("[", this.tokens, "]");
 	}
+	
 }

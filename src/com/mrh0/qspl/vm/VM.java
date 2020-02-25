@@ -1,10 +1,10 @@
 package com.mrh0.qspl.vm;
 
-import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.Stack;
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.type.TArray;
+import com.mrh0.qspl.type.TAtom;
 import com.mrh0.qspl.type.TContainer;
 import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
@@ -25,6 +25,7 @@ public class VM {
 		root = new Scope("origin");
 		scopeStack.add(root);
 		exports = new TContainer();
+		TAtom.init();
 	}
 	
 	public Scope getCurrentScope() {
@@ -90,12 +91,16 @@ public class VM {
 	
 	public void setVariables(TContainer c, Arguments a) {
 		TArray args = new TArray();
-		for(int i = 0; i < a.size(); i++) {
+		for(int i = 0; i < Math.max(a.size(), c.size()); i++) {
+			Val r = TUndefined.getInstance();
+			if(i < c.size()) {
+				r = a.get(i, c.get(i));
+			}
 			if(i<c.size()) {
 				Var v = defVariable(c.getKeys().get(i));
-				v.assign(a.get(i));
+				v.assign(r);
 			}
-			args.add(a.get(i));
+			args.add(r);
 		}
 		Var v = defVariable("arguments");
 		v.assign(args);

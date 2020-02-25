@@ -20,12 +20,11 @@ public class StatementBuilder {
 	private LinkedList<Token> postfix;
 	private LinkedList<Statement> block;
 	private TokenType blockType;
-	private boolean terminatesStatement = false;
+	private boolean funcStmt = false;
 	
 	public StatementBuilder(TokenType blocktype, boolean terminates) {
 		block = new LinkedList<Statement>();
 		blockType = blocktype;
-		this.terminatesStatement = terminates;
 		reset();
 	}
 	
@@ -48,8 +47,9 @@ public class StatementBuilder {
 		String s = cur.getToken();
 		
 		if(t == TokenType.IDENTIFIER  || t == TokenType.VAL_KEYWORD || t == TokenType.KEYWORD
-				|| t == TokenType.ACCESSOR_BLOCK || t == TokenType.OBJ_BLOCK || t == TokenType.ARY_BLOCK  || t == TokenType.ARG_BLOCK 
-				) {//|| t == TokenType.CODE_BLOCK || t == TokenType.IF_BLOCK || t == TokenType.WHILE_BLOCK
+				|| t == TokenType.ACCESSOR_BLOCK || t == TokenType.OBJ_BLOCK || t == TokenType.ARY_BLOCK  || t == TokenType.ARG_BLOCK  || t == TokenType.CODE_BLOCK 
+				//|| t == TokenType.IF_BLOCK || t == TokenType.WHILE_BLOCK
+				) {
 			postfix.add(cur);
 		}
 		else if(t == TokenType.LITERAL) {
@@ -72,8 +72,9 @@ public class StatementBuilder {
 						top = opStack.pop();
 					}
 					catch(Exception e) {
-						Console.g.err("Parentheses priority error (probably).");
+						Console.g.err("Misplaced parentheses error.");
 						e.printStackTrace();
+						break;
 					}
 				}
 			}
@@ -83,6 +84,8 @@ public class StatementBuilder {
 		}
 		else {
 			while(!opStack.isEmpty() && Tokens.opValue(opStack.peek().getToken(), opStack.peek().getType()) >= Tokens.opValue(s, t)) {
+				if(opStack.peek().getToken().equals("("))
+					System.err.println("Added (" + " on " + cur);
 				postfix.add(opStack.pop());
 			}
 			opStack.push(cur);
@@ -91,10 +94,6 @@ public class StatementBuilder {
 	
 	public Block makeBlock() {
 		return new Block(block);
-	}
-	
-	public boolean terminates() {
-		return terminatesStatement;
 	}
 	
 	public LinkedList<Token> optimized(){
@@ -125,7 +124,6 @@ public class StatementBuilder {
 								t = TokenType.STRING;
 							break;
 						case "-":
-							
 							r = lvv.sub(rvv);
 							break;
 						case "*":
@@ -177,5 +175,13 @@ public class StatementBuilder {
 	
 	public TokenType getBlockType() {
 		return blockType;
+	}
+	
+	public void setFunc() {
+		funcStmt = true;
+	}
+	
+	public boolean isFunc() {
+		return funcStmt;
 	}
 }

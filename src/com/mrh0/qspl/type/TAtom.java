@@ -40,7 +40,7 @@ public class TAtom implements Val{
 	@Override
 	public boolean equals(Val v) {
 		if(v.isAtom())
-			return this.equals(v);
+			return this == v;
 		return false;
 	}
 	
@@ -65,14 +65,14 @@ public class TAtom implements Val{
 	
 	private static Map<String, TAtom> atomStore;
 	
-	private static void init() {
+	public static void init() {
 		atomStore = new HashMap<String, TAtom>();
 	}
 	
 	public static TAtom get(String name) {
-		if(atomStore == null)
-			init();
-		return atomStore.getOrDefault(name, new TAtom(name));
+		if(!atomStore.containsKey(name))
+			return new TAtom(name);
+		return atomStore.get(name);
 	}
 	
 	public static TAtom from(Val v) {

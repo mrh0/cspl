@@ -40,6 +40,7 @@ public class SecondPass {
 						newCall = true;
 						continue;
 					case "func":
+						stmts.peek().setFunc();
 						funcCall = true;
 						break;
 				}
@@ -71,7 +72,6 @@ public class SecondPass {
 			}
 			else if(t == TokenType.END) {
 				stmts.finishStatement();
-				
 				end();
 				continue;
 			}
@@ -89,7 +89,7 @@ public class SecondPass {
 				}
 				
 				
-				TokenType blkt = (appendType == 1)?TokenType.IF_BLOCK:((appendType == 2)?TokenType.WHILE_BLOCK:TokenType.CODE_BLOCK);
+				TokenType blkt = (appendType == 1)?(stmts.peek().isFunc()?TokenType.CODE_BLOCK:TokenType.IF_BLOCK):((appendType == 2)?TokenType.WHILE_BLOCK:TokenType.CODE_BLOCK);
 				stmts.push(s.equals("{")?(newCall?TokenType.OBJ_BLOCK:blkt):(newCall?TokenType.ARY_BLOCK:TokenType.ACCESSOR_BLOCK), append);
 				
 				append = false;
@@ -100,7 +100,6 @@ public class SecondPass {
 			else if(t == TokenType.END_BLOCK) {
 				stmts.finishStatement();
 				TokenBlock tb = stmts.pop();
-				
 				end();
 				continue;
 			}

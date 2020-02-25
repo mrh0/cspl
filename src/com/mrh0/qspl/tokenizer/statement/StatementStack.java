@@ -47,4 +47,8 @@ public class StatementStack {
 	public void finishStatement() {
 		stack.peek().finishStatement();
 	}
+	
+	public StatementBuilder peek() {
+		return stack.peek();
+	}
 }
