@@ -24,7 +24,8 @@ public enum TokenType {
 	WHILE_BLOCK(19, "whl"),
 	VAL(20, "val"),
 	ATOM(21, "atom"),
-	ARG_BLOCK(22, "arg_b");
+	ARG_BLOCK(22, "arg_b"),
+	PRE_BLOCK_KEYWORD(23, "pb_kw");
 	
 	private int id;
 	private String name;

@@ -49,8 +49,6 @@ public class Tokens {
 				return true;
 			case "assert":
 				return true;
-			case "else":
-				return true;
 		}
 		return false;
 	}
@@ -62,6 +60,26 @@ public class Tokens {
 			case "continue":
 				return true;
 			case "from":
+				return true;
+		}
+		return false;
+	}
+	
+	public static boolean isPreBlockKeyword(String s) {
+		switch(s) {
+			case "if":
+				return true;
+			case "for":
+				return true;
+			case "switch":
+				return true;
+			case "case":
+				return true;
+			case "func":
+				return true;
+			case "else":
+				return true;
+			case "loop":
 				return true;
 		}
 		return false;
@@ -84,8 +102,6 @@ public class Tokens {
 			case "new":
 				return true;
 			case "$":
-				return true;
-			case "func":
 				return true;
 		}
 		return false;
@@ -241,6 +257,8 @@ public class Tokens {
 				return 20;
 			case TAIL_KEYWORD:
 				return -50;
+			case PRE_BLOCK_KEYWORD:
+				return -500;
 				
 			case CODE_BLOCK:
 				return -200;

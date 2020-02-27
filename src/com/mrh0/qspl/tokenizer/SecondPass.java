@@ -39,6 +39,10 @@ public class SecondPass {
 					case "$":
 						newCall = true;
 						continue;
+				}
+			}
+			else if(t == TokenType.PRE_BLOCK_KEYWORD) {
+				switch(s) {
 					case "func":
 						stmts.peek().setFunc();
 						funcCall = true;
@@ -88,8 +92,8 @@ public class SecondPass {
 					continue;
 				}
 				
-				
-				TokenType blkt = (appendType == 1)?(stmts.peek().isFunc()?TokenType.CODE_BLOCK:TokenType.IF_BLOCK):((appendType == 2)?TokenType.WHILE_BLOCK:TokenType.CODE_BLOCK);
+				//stmts.peek().isFunc()?TokenType.CODE_BLOCK:TokenType.IF_BLOCK
+				TokenType blkt = (appendType == 1)?(TokenType.CODE_BLOCK):((appendType == 2)?TokenType.WHILE_BLOCK:TokenType.CODE_BLOCK);
 				stmts.push(s.equals("{")?(newCall?TokenType.OBJ_BLOCK:blkt):(newCall?TokenType.ARY_BLOCK:TokenType.ACCESSOR_BLOCK), append);
 				
 				append = false;

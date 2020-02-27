@@ -47,7 +47,7 @@ public class StatementBuilder {
 		String s = cur.getToken();
 		
 		if(t == TokenType.IDENTIFIER  || t == TokenType.VAL_KEYWORD || t == TokenType.KEYWORD
-				|| t == TokenType.ACCESSOR_BLOCK || t == TokenType.OBJ_BLOCK || t == TokenType.ARY_BLOCK  || t == TokenType.ARG_BLOCK  || t == TokenType.CODE_BLOCK 
+				|| t == TokenType.ACCESSOR_BLOCK || t == TokenType.OBJ_BLOCK || t == TokenType.ARY_BLOCK  || t == TokenType.ARG_BLOCK//  || t == TokenType.CODE_BLOCK 
 				//|| t == TokenType.IF_BLOCK || t == TokenType.WHILE_BLOCK
 				) {
 			postfix.add(cur);

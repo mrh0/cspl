@@ -29,18 +29,24 @@ public class StatementEval {
 	private VM vm;
 	private BlockType bt;
 	private boolean blockPass = false;
+	private IfChainState ifChainState;
+	
+	public enum IfChainState {
+		PASS, FAIL, BLOCKED
+	};
 	
 	private enum BlockType {
 		CODE, ARRAY, OBJECT, CONTAINER, ACCESSOR
 	}
 	
-	public  StatementEval(Statement s, VM vm, BlockType bt, ValStack vals, boolean blockPass) {
+	public  StatementEval(Statement s, VM vm, BlockType bt, ValStack vals, boolean blockPass, IfChainState ifChainState) {
 		this.s = s;
 		vals.clear();
 		this.vals = vals;
 		this.vm = vm;
 		this.bt  = bt;
 		this.blockPass = blockPass;
+		this.ifChainState = ifChainState;
 	}
 	
 	public  StatementEval(Statement s, VM vm, ValStack vals) {
@@ -230,20 +236,7 @@ public class StatementEval {
 								Console.g.err("Keyword 'let' used in illegal context.");
 							}
 							break;
-						case "func":
-							hl = vals.pop();
-							vl = vals.pop();
-							Token nt = s.getToken(i-1);
-							
-							if(!hl.isContainer() || !vl.isVariable() || !(nt instanceof TokenBlock))
-								Console.g.err("Malformed function definition." + nt);
-							
-							TokenBlock nblock = (TokenBlock)nt;
-							//System.out.println("Def func " + vl +":"+ hl+":"+nblock);
-							vl.assign(new UserFunc(nblock, TContainer.from(hl)));
-							//vm.setVariable((Var)vl);
-							vals.push(new VarDef((Var)vl));
-							break;
+						
 						}
 					break;
 				
@@ -292,15 +285,67 @@ public class StatementEval {
 							break;
 						case "exit":
 							return new EvalResult(vals.pop());
+					}
+					break;
+					
+				
+				//Pre Block Keyword
+				case PRE_BLOCK_KEYWORD:
+					Token nt = s.getToken(i-1);
+					switch(t.getToken()) {
 						case "else":
-							vals.push(new TNumber((vals.isEmpty() || vals.pop().booleanValue()) && !blockPass));
+							if((vals.isEmpty()|| vals.pop().booleanValue()) && ifChainState == IfChainState.FAIL) {
+								vals.push(evalBlock((TokenBlock)s.getToken(i-1), vm).getResult());
+								ifChainState = IfChainState.BLOCKED;
+							}
+							break;
+						case "if":
+							ifChainState = IfChainState.FAIL;
+							if(vals.pop().booleanValue()) {
+								vals.push(evalBlock((TokenBlock)s.getToken(i-1), vm).getResult());
+								ifChainState = IfChainState.BLOCKED;
+							}
+							break;
+						case "func":
+							hl = vals.pop();
+							vl = vals.pop();
+							
+							if(!hl.isContainer() || !vl.isVariable() || !(nt instanceof TokenBlock))
+								Console.g.err("Malformed function definition." + nt);
+							
+							TokenBlock nblock = (TokenBlock)nt;
+							vl.assign(new UserFunc(nblock, TContainer.from(hl)));
+							vals.push(new VarDef((Var)vl));
+							break;
+						case "loop":
+							ifChainState = IfChainState.FAIL;
+							if(vals.peek().isIterable()) {
+								Iterator<Val> it = IIterable.from(vals.peek()).iterator();
+								while(it.hasNext()) {
+									ifChainState = IfChainState.BLOCKED;
+									it.next();
+									evalBlock((TokenBlock)nt, vm);
+								}
+								continue;
+							}
+							else if(vals.peek().booleanValue()) {
+								evalBlock((TokenBlock)nt, vm);
+								ifChainState = IfChainState.BLOCKED;
+								//try {Thread.sleep(500);
+								//} catch (InterruptedException e) {e.printStackTrace();}
+								i = -1;
+								this.vals.clear();
+								continue;
+							}
+							break;
 					}
 					break;
 					
 				//Blocks:
 				case CODE_BLOCK:
-					if(!s.getToken(i+1).getToken().equals("func"))
-						vals.push(evalBlock((TokenBlock)t, vm).getResult());
+					if(!s.getToken(i+1).isPreBlockKeyword())
+						Console.g.err("Unsolicited block: '"+t+"'.");
+					//vals.push(evalBlock((TokenBlock)t, vm).getResult());
 					break;
 				case OBJ_BLOCK:
 					vals.push(evalContainerBlock((TokenBlock)t, vm).getResult());
@@ -358,7 +403,7 @@ public class StatementEval {
 				vm.setVariable((Var)v);
 			}
 		}
-		return new EvalResult(vals.isEmpty()?TUndefined.getInstance():vals.pop(), blockPass);
+		return new EvalResult(vals.isEmpty()?TUndefined.getInstance():vals.pop(), ifChainState);
 	}
 	
 	public static EvalResult evalBlock(TokenBlock b, VM vm) {
@@ -370,9 +415,11 @@ public class StatementEval {
 		EvalResult r = new EvalResult(TUndefined.getInstance());
 		ValStack bvals = new ValStack();
 		boolean blockPass = true;
+		IfChainState chain = IfChainState.BLOCKED;
 		for(int i = 0; i < l.length; i++) {
-			r = new StatementEval(l[i], vm, BlockType.CODE, bvals, blockPass).eval();
-			blockPass = r.didPass();
+			r = new StatementEval(l[i], vm, BlockType.CODE, bvals, blockPass, chain).eval();
+			blockPass = r.didPass()==IfChainState.PASS;
+			chain = r.didPass();
 			vm.setPreviousResult(r.getResult());
 		}
 		return new EvalResult(r.getResult());
@@ -383,7 +430,7 @@ public class StatementEval {
 		TArray a;
 		ValStack bvals = new ValStack();
 		if(l.length == 1) {
-			Val r = new StatementEval(l[0], vm, BlockType.ARRAY, bvals, blockPass).eval().getResult();
+			Val r = new StatementEval(l[0], vm, BlockType.ARRAY, bvals, blockPass, ifChainState).eval().getResult();
 			if(r.isIterable()) {
 				a = new TArray(IIterable.from(r));
 				return new EvalResult(a);
@@ -395,7 +442,7 @@ public class StatementEval {
 		
 		a = new TArray();
 		for(int i = 0; i < l.length; i++) {
-			a.add(new StatementEval(l[i], vm, BlockType.ARRAY, bvals, blockPass).eval().getResult());
+			a.add(new StatementEval(l[i], vm, BlockType.ARRAY, bvals, blockPass, ifChainState).eval().getResult());
 		}
 		return new EvalResult(a);
 	}
@@ -413,7 +460,7 @@ public class StatementEval {
 		TContainer c = new TContainer();
 		ValStack bvals = new ValStack();
 		for(int i = 0; i < l.length; i++) {
-			c.add(new StatementEval(l[i], vm, BlockType.CONTAINER, bvals, blockPass).eval().getResult());
+			c.add(new StatementEval(l[i], vm, BlockType.CONTAINER, bvals, blockPass, ifChainState).eval().getResult());
 		}
 		return new EvalResult(c);
 	}
@@ -423,7 +470,7 @@ public class StatementEval {
 		TContainer c = new TContainer();
 		ValStack bvals = new ValStack();
 		for(int i = 0; i < l.length; i++) {
-			Val r = new StatementEval(l[i], vm, BlockType.CONTAINER, bvals, blockPass).eval().getResult();
+			Val r = new StatementEval(l[i], vm, BlockType.CONTAINER, bvals, blockPass, ifChainState).eval().getResult();
 			if(r.isDefinition())
 				c.add(r);
 			else if(r.isVariable())
@@ -440,7 +487,7 @@ public class StatementEval {
 		
 		ValStack bvals = new ValStack();
 		for(int i = 0; i < l.length; i++) {
-			stmtResult.add(new StatementEval(l[i], vm, BlockType.CONTAINER, bvals, blockPass).eval().getResult());
+			stmtResult.add(new StatementEval(l[i], vm, BlockType.CONTAINER, bvals, blockPass, ifChainState).eval().getResult());
 		}
 		if(toAccess.isFunction()) {
 			ArrayList<Val> args = new ArrayList<Val>();

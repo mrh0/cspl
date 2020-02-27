@@ -64,6 +64,10 @@ public class Token {
 		return type == TokenType.VAL_KEYWORD;
 	}
 	
+	public boolean isPreBlockKeyword() {
+		return type == TokenType.PRE_BLOCK_KEYWORD;
+	}
+	
 	public boolean isBlock() {
 		return this instanceof TokenBlock;
 	}

@@ -20,6 +20,7 @@ public class Tokenizer {
 	//Interface
 	public TokenBlock tokenize() {
 		//Get code and clear builder.
+		codeBuilder.append("\r\n ; ");
 		String code = codeBuilder.toString();
 		codeBuilder = new StringBuilder();
 		tokens = new ArrayList<Token>();
