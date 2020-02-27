@@ -70,10 +70,12 @@ Assigning: '= += -= *= /= %='
 Boolean: '&& || ! == < > <= >='
 Shift & Rotate: '<< >> <<< >>>'
 Bitwise: '& | ^'
-Contains: '?'
-Round: '~'
+Contains: '?' //Example: 5 ? $[2,4,5,7] : true
+Round: '~' //Example: 5.72~ : 6.0
+Range iterator: '...' //Example: 0...10 : range iterator from 0 to 10
 Is type: 'is' //Example: 56 is STRING : false (0)
 As type: 'as' //Example: 56 as STRING : "56"
+Variable iterator: 'in of' //Example: let i in 0...10 : iterate i from 0 to 10
 ```
 Arrays:
 ```
