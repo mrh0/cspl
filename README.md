@@ -69,7 +69,7 @@ Math: '+ - * / % ++ -- **'
 Assigning: '= += -= *= /= %='
 Boolean: '&& || ! == < > <= >='
 Shift & Rotate: '<< >> <<< >>>'
-Push & Pull: '<- ->'
+Push & Pull: '<- ->' //Example: list = new [1,2,3]; list -> x; //list = [2,3], x = 1
 Bitwise: '& | ^'
 Contains: '?' //Example: 5 ? $[2,4,5,7] : true
 Round: '~' //Example: 5.72~ : 6.0
