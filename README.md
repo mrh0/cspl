@@ -69,6 +69,7 @@ Math: '+ - * / % ++ -- **'
 Assigning: '= += -= *= /= %='
 Boolean: '&& || ! == < > <= >='
 Shift & Rotate: '<< >> <<< >>>'
+Push & Pull: '<- ->'
 Bitwise: '& | ^'
 Contains: '?' //Example: 5 ? $[2,4,5,7] : true
 Round: '~' //Example: 5.72~ : 6.0
