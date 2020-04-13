@@ -1,5 +1,7 @@
 package com.mrh0.qspl.type;
 
+import com.mrh0.qspl.type.number.TNumber;
+
 public class TUndefined implements Val{
 	
 	private static TUndefined instance = null;
@@ -58,5 +60,9 @@ public class TUndefined implements Val{
 	@Override
 	public Object getValue() {
 		return "undefined";
+	}
+	
+	public Val is(Val v) {
+		return new TNumber(v.isUndefined());
 	}
 }

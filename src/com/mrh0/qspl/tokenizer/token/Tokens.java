@@ -103,6 +103,12 @@ public class Tokens {
 				return true;
 			case "$":
 				return true;
+			case "where":
+				return true;
+			case "orderasc":
+				return true;
+			case "orderdesc":
+				return true;
 		}
 		return false;
 	}
@@ -224,7 +230,7 @@ public class Tokens {
 	}
 	
 	public static boolean isOperator(char c) {
-		if(c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '!' || c == '=' || c == '<' || c == '>' || c == '&' || c == '|' || c == '?' || c == '~' || c == '^')
+		if(c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '!' || c == '=' || c == '<' || c == '>' || c == '&' || c == '|' || c == '?' || c == '~' || c == '^' || c == '#')
 			return true;
 		return false;
 	}
@@ -253,19 +259,25 @@ public class Tokens {
 						return 1;
 					case "let":
 						return 20;
+					case "where":
+						return 1;
+					case "orderasc":
+						return 1;
+					case "orderdesc":
+						return 1;
 				}
 				return 20;
 			case TAIL_KEYWORD:
-				return -50;
-			case PRE_BLOCK_KEYWORD:
 				return -500;
+			case PRE_BLOCK_KEYWORD:
+				return -400;
 				
 			case CODE_BLOCK:
-				return -200;
-			case IF_BLOCK:
-				return -200;
-			case WHILE_BLOCK:
-				return -200;
+				return -300;
+			/*case IF_BLOCK:
+				return -200;*/
+			/*case WHILE_BLOCK:
+				return -200;*/
 				
 			case ARY_BLOCK:
 				return 25;
@@ -277,10 +289,16 @@ public class Tokens {
 		
 		switch(s) {
 			case "(":
-				return -100;
-			
+				return -1000;
+				
+			case "#":
+				return 13;
 			case "...":
-				return 11;
+				return 12;
+			case "<-":
+				return 12;
+			case "->":
+				return 12;
 			case "**":
 				return 11;
 			case "++":
@@ -360,6 +378,25 @@ public class Tokens {
 			case "!":
 				return true;
 			case "~":
+				return true;
+			case "#":
+				return true;
+				
+			case "+=":
+				return true;
+			case "-=":
+				return true;
+			case "*=":
+				return true;
+			case "/=":
+				return true;
+			case "%=":
+				return true;
+			case "...":
+				return true;
+			case "is":
+				return true;
+			case "as":
 				return true;
 		}
 		return false;

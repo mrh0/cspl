@@ -182,4 +182,8 @@ public class TString implements Val, IIterable{
 	public Iterator<Val> iterator() {
 		return new TStringIterator(this);
 	}
+	
+	public Val is(Val v) {
+		return new TNumber(TString.class.isInstance(v));
+	}
 }

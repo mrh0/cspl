@@ -11,6 +11,7 @@ public class Tokenizer {
 	
 	public Tokenizer() {
 		codeBuilder = new StringBuilder();
+		codeBuilder.append(" \r");
 	}
 	
 	public void insertCode(String code) {

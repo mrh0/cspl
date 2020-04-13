@@ -2,6 +2,7 @@ package com.mrh0.qspl.type;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.type.iterator.IIterable;
@@ -117,7 +118,7 @@ public class TArray implements Val, IIterable{
 	}
 	
 	@Override
-	public Val accessor(ArrayList<Val> args) {
+	public Val accessor(List<Val> args) {
 		/*if(args.size() == 0) 
 			return new TNumber(values.size());
 		else if(args.size() == 1) {
@@ -263,5 +264,9 @@ public class TArray implements Val, IIterable{
 		for(int i = 0; i < shift; i++)
 			a.add(values.remove(values.size()-1));
 		return a;
+	}
+	
+	public Val is(Val v) {
+		return new TNumber(TArray.class.isInstance(v));
 	}
 }

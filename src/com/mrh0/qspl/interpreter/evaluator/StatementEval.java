@@ -10,12 +10,14 @@ import com.mrh0.qspl.tokenizer.token.TokenBlock;
 import com.mrh0.qspl.tokenizer.token.TokenVal;
 import com.mrh0.qspl.type.TArray;
 import com.mrh0.qspl.type.TContainer;
+import com.mrh0.qspl.type.TString;
 import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
 import com.mrh0.qspl.type.func.Arguments;
 import com.mrh0.qspl.type.func.TFunc;
 import com.mrh0.qspl.type.func.UserFunc;
 import com.mrh0.qspl.type.iterator.IIterable;
+import com.mrh0.qspl.type.iterator.TFilterIterator;
 import com.mrh0.qspl.type.iterator.TRangeIterator;
 import com.mrh0.qspl.type.number.TNumber;
 import com.mrh0.qspl.type.var.Var;
@@ -31,6 +33,26 @@ public class StatementEval {
 	private boolean blockPass = false;
 	private IfChainState ifChainState;
 	
+	public static boolean exiting = false;
+	public static EvalResult exitResult = new EvalResult(TUndefined.getInstance());
+	
+	public static void exit(Val v) {
+		exiting = true;
+		exitResult = new EvalResult(v);
+	}
+	
+	public static void exit(EvalResult r) {
+		exiting = true;
+		exitResult = r;
+	}
+	
+	public static EvalResult cancelExit() {
+		exiting = false;
+		EvalResult r = exitResult;
+		exitResult = new EvalResult(TUndefined.getInstance());
+		return r;
+	}
+	
 	public enum IfChainState {
 		PASS, FAIL, BLOCKED
 	};
@@ -39,7 +61,7 @@ public class StatementEval {
 		CODE, ARRAY, OBJECT, CONTAINER, ACCESSOR
 	}
 	
-	public  StatementEval(Statement s, VM vm, BlockType bt, ValStack vals, boolean blockPass, IfChainState ifChainState) {
+	public StatementEval(Statement s, VM vm, BlockType bt, ValStack vals, boolean blockPass, IfChainState ifChainState) {
 		this.s = s;
 		vals.clear();
 		this.vals = vals;
@@ -49,7 +71,7 @@ public class StatementEval {
 		this.ifChainState = ifChainState;
 	}
 	
-	public  StatementEval(Statement s, VM vm, ValStack vals) {
+	public StatementEval(Statement s, VM vm, ValStack vals) {
 		this.s = s;
 		vals.clear();
 		this.vals = vals;
@@ -65,6 +87,8 @@ public class StatementEval {
 			//Console.g.currentLine = t.line;
 			Val hl;
 			Val vl;
+			if(exiting)
+				return new EvalResult();
 			
 			switch(t.getType()) {
 				case OPERATOR:
@@ -110,6 +134,15 @@ public class StatementEval {
 							vals.push(TNumber.create(!vals.pop().equals(hl)));
 							break;
 							
+						case "is":
+							hl = vals.pop();
+							vals.push(vals.pop().is(hl));
+							break;
+						case "as":
+							hl = vals.pop();
+							vals.push(vals.pop().as(hl));
+							break;
+							
 						case "<":
 							hl = vals.pop();
 							vals.push(TNumber.create(vals.pop().compare(hl)==-1));
@@ -142,6 +175,15 @@ public class StatementEval {
 						case ">>>":
 							hl = vals.pop();
 							vals.push(vals.pop().rotateRight(hl));
+							break;
+							
+						case "->":
+							hl = vals.pop();
+							vals.push(vals.pop().pull(hl));
+							break;
+						case "<-":
+							hl = vals.pop();
+							vals.push(vals.pop().push(hl));
 							break;
 							
 						case "&&":
@@ -203,6 +245,13 @@ public class StatementEval {
 							vl = vals.pop();
 							vals.push(vl.assign(vl.mod(hl)));
 							break;
+						case "#":
+							hl = vals.pop();
+							if(bt != BlockType.CODE)
+								Console.g.err("Invalid use of operator '#'.");
+							vl = vals.pop();
+							vals.push(vl.accessor(new TString(Var.from(hl).getName())));
+							break;
 						default:
 							System.err.println("Unknown op: " + t.getToken());
 							break;
@@ -236,7 +285,10 @@ public class StatementEval {
 								Console.g.err("Keyword 'let' used in illegal context.");
 							}
 							break;
-						
+						case "where":
+							hl = vals.pop();
+							vals.push(new TFilterIterator(TFunc.from(hl), IIterable.from(vals.pop()), vm));
+							break;
 						}
 					break;
 				
@@ -284,7 +336,14 @@ public class StatementEval {
 								Console.g.err("Cannot preform delete on type " + vals.peek().getTypeName());
 							break;
 						case "exit":
-							return new EvalResult(vals.pop());
+							if(vals.isEmpty()) {
+								exit(TUndefined.getInstance());
+								return new EvalResult(TUndefined.getInstance());
+							}
+							else {
+								exit(vals.peek());
+								return new EvalResult(vals.pop());
+							}
 					}
 					break;
 					
@@ -309,7 +368,8 @@ public class StatementEval {
 						case "func":
 							hl = vals.pop();
 							vl = vals.pop();
-							
+							if(hl.isFunction())
+								Console.g.err("Function has already been defined.");
 							if(!hl.isContainer() || !vl.isVariable() || !(nt instanceof TokenBlock))
 								Console.g.err("Malformed function definition." + nt);
 							
@@ -359,15 +419,15 @@ public class StatementEval {
 				case ARG_BLOCK:
 					vals.push(evalArgumentBlock((TokenBlock)t, vm).getResult());
 					break;
-				case IF_BLOCK:
+				/*case IF_BLOCK:
 					blockPass = false;
 					if(vals.peek().booleanValue()) {
 						EvalResult res = evalBlock((TokenBlock)t, vm);
 						vals.push(res.getResult());
 						blockPass = true;
 					}
-					break;
-				case WHILE_BLOCK:
+					break;*/
+				/*case WHILE_BLOCK:
 					//Val r = TUndefined.getInstance();
 					blockPass = false;
 					if(vals.peek().isIterable()) {
@@ -389,7 +449,7 @@ public class StatementEval {
 						continue;
 					}
 					
-					break;
+					break;*/
 			default:
 				break;
 				

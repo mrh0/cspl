@@ -1,5 +1,6 @@
 package com.mrh0.qspl.type.iterator;
 
+import com.mrh0.qspl.type.TArray;
 import com.mrh0.qspl.type.Val;
 import com.mrh0.qspl.type.number.TNumber;
 
@@ -28,5 +29,9 @@ public class TRangeIterator extends TIterator{
 	@Override
 	public String toString() {
 		return "("+start+"..."+i+"..."+end+")";
+	}
+	
+	public Val is(Val v) {
+		return new TNumber(TRangeIterator.class.isInstance(v));
 	}
 }

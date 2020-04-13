@@ -17,6 +17,11 @@ public class Arguments implements Iterable<Val> {
 		args = list;
 	}
 	
+	public Arguments put(Val v) {
+		args.add(v);
+		return this;
+	}
+	
 	public Val get(int i) {
 		if(i >= args.size())
 			return TUndefined.getInstance();

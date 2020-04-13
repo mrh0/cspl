@@ -237,6 +237,8 @@ public class FirstPass {
 	}
 	
 	private Token getPervious() {
+		if(tokens.size() <= 0)
+			Console.g.err("Prev?");
 		return tokens.get(tokens.size()-1);
 	}
 	
@@ -269,6 +271,11 @@ public class FirstPass {
 		
 		//Do last check on token:
 		ctype = lastCheck(rtoken);
+		//Add start parentheses round function def
+		if(ctype == TokenType.PRE_BLOCK_KEYWORD) {
+			if(rtoken.equals("func"))
+				tokens.add(new Token("(", TokenType.SEPERATOR, line));
+		}
 		tokens.add(new Token(rtoken, ctype, line));
 		
 		//Reset:

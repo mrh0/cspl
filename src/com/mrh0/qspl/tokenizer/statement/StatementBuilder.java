@@ -30,7 +30,7 @@ public class StatementBuilder {
 	
 	public void finishStatement() {
 		while(!opStack.isEmpty()) {
-			postfix.add(opStack.pop());
+			pAdd(opStack.pop());
 		}
 		if(postfix.size() > 0)
 			block.add(new Statement(optimized()));//optimized() //postfix
@@ -50,16 +50,16 @@ public class StatementBuilder {
 				|| t == TokenType.ACCESSOR_BLOCK || t == TokenType.OBJ_BLOCK || t == TokenType.ARY_BLOCK  || t == TokenType.ARG_BLOCK//  || t == TokenType.CODE_BLOCK 
 				//|| t == TokenType.IF_BLOCK || t == TokenType.WHILE_BLOCK
 				) {
-			postfix.add(cur);
+			pAdd(cur);
 		}
 		else if(t == TokenType.LITERAL) {
-			postfix.add(new TokenVal(cur.getToken(), TNumber.create(cur.getToken()), cur.getLine()));
+			pAdd(new TokenVal(cur.getToken(), TNumber.create(cur.getToken()), cur.getLine()));
 		}
 		else if(t == TokenType.STRING) {
-			postfix.add(new TokenVal(cur.getToken(), new TString(cur.getToken()), cur.getLine()));
+			pAdd(new TokenVal(cur.getToken(), new TString(cur.getToken()), cur.getLine()));
 		}
 		else if(t == TokenType.ATOM) {
-			postfix.add(new TokenVal(cur.getToken(), TAtom.get(cur.getToken()), cur.getLine()));
+			pAdd(new TokenVal(cur.getToken(), TAtom.get(cur.getToken()), cur.getLine()));
 		}
 		else if(t == TokenType.SEPERATOR) {
 			if(s.equals("("))
@@ -67,7 +67,7 @@ public class StatementBuilder {
 			else if(s.equals(")")) {
 				Token top = opStack.pop();
 				while(!top.getToken().equals("(")) {
-					postfix.add(top);
+					pAdd(top);
 					try {
 						top = opStack.pop();
 					}
@@ -79,21 +79,62 @@ public class StatementBuilder {
 				}
 			}
 			else {
-				postfix.add(cur);
+				pAdd(cur);
 			}
 		}
 		else {
 			while(!opStack.isEmpty() && Tokens.opValue(opStack.peek().getToken(), opStack.peek().getType()) >= Tokens.opValue(s, t)) {
-				if(opStack.peek().getToken().equals("("))
-					System.err.println("Added (" + " on " + cur);
-				postfix.add(opStack.pop());
+				//if(opStack.peek().getToken().equals("("))
+				//	System.err.println("Added (" + " on " + cur);
+				pAdd(opStack.pop());
 			}
 			opStack.push(cur);
+		}
+		
+		//Add end parentheses round function def
+		if(t == TokenType.CODE_BLOCK) {
+			if(funcStmt) {
+				Token top = opStack.pop();
+				while(!top.getToken().equals("(")) {
+					pAdd(top);
+					try {
+						top = opStack.pop();
+					}
+					catch(Exception e) {
+						Console.g.err("Misplaced parentheses error.");
+						e.printStackTrace();
+						break;
+					}
+				}
+				funcStmt = false;
+			}
 		}
 	}
 	
 	public Block makeBlock() {
 		return new Block(block);
+	}
+	
+	private void pAdd(Token t) {
+		System.out.println(t);
+		postfix.add(t);
+		if(t.getToken().equals("func")) {
+			System.out.println("P"+postfix + " : " + opStack);
+			/*Token top = opStack.pop();
+			while(!top.getToken().equals("(")) {
+				pAdd(top);
+				try {
+					top = opStack.pop();
+				}
+				catch(Exception e) {
+					Console.g.err("Misplaced parentheses error.");
+					e.printStackTrace();
+					break;
+				}
+			}*/
+		}
+		
+		
 	}
 	
 	public LinkedList<Token> optimized(){

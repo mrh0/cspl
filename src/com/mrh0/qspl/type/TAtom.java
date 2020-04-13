@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.mrh0.qspl.io.console.Console;
+import com.mrh0.qspl.type.number.TNumber;
 import com.mrh0.qspl.type.var.Var;
 
 public class TAtom implements Val{
@@ -82,5 +83,9 @@ public class TAtom implements Val{
 			return from(((Var)v).get());
 		Console.g.err("Cannot convert " + v.getTypeName() + " to atom.");
 		return null;
+	}
+	
+	public Val is(Val v) {
+		return new TNumber(TAtom.class.isInstance(v));
 	}
 }

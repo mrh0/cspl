@@ -3,6 +3,7 @@ package com.mrh0.qspl.type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.type.number.TNumber;
@@ -102,7 +103,7 @@ public class TContainer implements Val{
 	}
 	
 	@Override
-	public Val accessor(ArrayList<Val> args) {
+	public Val accessor(List<Val> args) {
 		if(args.size() == 0) 
 			return TNumber.create(map.size());
 		else if(args.size() == 1) {
@@ -172,5 +173,9 @@ public class TContainer implements Val{
 		}
 		r.append("]");
 		return r.toString();
+	}
+	
+	public Val is(Val v) {
+		return new TNumber(TContainer.class.isInstance(v));
 	}
 }

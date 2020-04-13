@@ -1,6 +1,7 @@
 package com.mrh0.qspl.type;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.type.iterator.IIterable;
@@ -90,6 +91,8 @@ public interface Val {
 	}
 	
 	public default Val as(Val v) {
+		if(v.isString())
+			return new TString(this.toString());
 		Console.g.err("Cannot preform operation as on " + this.getTypeName() + " with " + v.getTypeName());
 		return TUndefined.getInstance();
 	}
@@ -146,6 +149,16 @@ public interface Val {
 		return TUndefined.getInstance();
 	}
 	
+	public default Val push(Val v) {
+		Console.g.err("Cannot preform operation push on " + this.getTypeName() + " with " + v.getTypeName());
+		return TUndefined.getInstance();
+	}
+	
+	public default Val pull(Val v) {
+		Console.g.err("Cannot preform operation pull on " + this.getTypeName() + " with " + v.getTypeName());
+		return TUndefined.getInstance();
+	}
+	
 	public default boolean equals(Val v) {
 		//Console.g.err("Default equals operation on " + this.getTypeName() + " with " + v.getTypeName());
 		return equals((Object)v);
@@ -177,7 +190,13 @@ public interface Val {
 		return TUndefined.getInstance();
 	}
 	
-	public default Val accessor(ArrayList<Val> args) {
+	public default Val accessor(Val arg) {
+		ArrayList<Val> a = new ArrayList<Val>();
+		a.add(arg);
+		return accessor(a);
+	}
+	
+	public default Val accessor(List<Val> args) {
 		Console.g.err("Cannot preform operation accessor with " + args.size() + (args.size()==1?" argument on ":" arguments on ") + this.getTypeName());
 		return TUndefined.getInstance();
 	}

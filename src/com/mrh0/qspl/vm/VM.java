@@ -10,6 +10,7 @@ import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
 import com.mrh0.qspl.type.func.Arguments;
 import com.mrh0.qspl.type.var.Var;
+import com.mrh0.qspl.vm.queue.EvalQueue;
 import com.mrh0.qspl.vm.scope.Scope;
 import com.mrh0.qspl.vm.scope.Scope.Policy;
 
@@ -19,8 +20,10 @@ public class VM {
 	private TContainer exports;
 	private Scope root;
 	private Val previous;
+	private EvalQueue queue;
 	
 	public VM() {
+		queue = new EvalQueue(this);
 		scopeStack = new Stack<Scope>();
 		root = new Scope("origin");
 		scopeStack.add(root);
@@ -94,7 +97,10 @@ public class VM {
 		for(int i = 0; i < Math.max(a.size(), c.size()); i++) {
 			Val r = TUndefined.getInstance();
 			if(i < c.size()) {
-				r = a.get(i, c.get(i));
+				Val d = c.get(i);
+				r = a.get(i, d);
+				if(r.isUndefined())
+					r = d;
 			}
 			if(i<c.size()) {
 				Var v = defVariable(c.getKeys().get(i));
@@ -133,4 +139,12 @@ public class VM {
 	public Val getPreviousResult() {
 		return this.previous;
 	}
+	
+	 public void startQueue() {
+		 queue.start();
+	 }
+	 
+	 public void stopQueue() {
+		 queue.stop();
+	 }
 }

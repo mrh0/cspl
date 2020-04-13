@@ -1,10 +1,13 @@
 package com.mrh0.qspl.type.var;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.mrh0.qspl.io.console.Console;
+import com.mrh0.qspl.type.TArray;
 import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
+import com.mrh0.qspl.type.number.TNumber;
 import com.mrh0.qspl.vm.VM;
 
 public class Var implements Val{
@@ -97,6 +100,11 @@ public class Var implements Val{
 	}
 	
 	@Override
+	public boolean isIterable() {
+		return value.isIterable();
+	}
+	
+	@Override
 	public String getTypeName() {
 		return "var("+name+": "+value.getTypeName()+")";
 	}
@@ -155,6 +163,11 @@ public class Var implements Val{
 		return value = value.sub(v);
 	}
 	
+	@Override
+	public Val approx() {
+		return value.approx();
+	}
+	
 	public Val get() {
 		return value;
 	}
@@ -183,7 +196,7 @@ public class Var implements Val{
 	}
 	
 	@Override
-	public Val accessor(ArrayList<Val> args) {
+	public Val accessor(List<Val> args) {
 		return value.accessor(args);
 	}
 	
@@ -191,5 +204,9 @@ public class Var implements Val{
 		if(v.isVariable())
 			return (Var)v;
 		return null;
+	}
+	
+	public Val is(Val v) {
+		return value.is(v);
 	}
 }

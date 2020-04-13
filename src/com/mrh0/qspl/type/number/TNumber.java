@@ -1,6 +1,7 @@
 package com.mrh0.qspl.type.number;
 
 import com.mrh0.qspl.io.console.Console;
+import com.mrh0.qspl.type.TArray;
 import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
 import com.mrh0.qspl.type.var.Var;
@@ -105,6 +106,14 @@ public class TNumber implements Val{
 	}
 	
 	@Override
+	public Val mod(Val v) {
+		if(v.isNumber())
+			return create(get() % from(v).get());
+		Console.g.err("Cannot preform operation modulo on " + this.getTypeName() + " with " + v.getTypeName());
+		return TUndefined.getInstance();
+	}
+	
+	@Override
 	public Val pow(Val v) {
 		if(v.isNumber())
 			return create(Math.pow(get(),  from(v).get()));
@@ -112,8 +121,69 @@ public class TNumber implements Val{
 		return TUndefined.getInstance();
 	}
 	
+	@Override
+	public Val bitwiseAnd(Val v) {
+		if(v.isNumber())
+			return create(integerValue() & from(v).integerValue());
+		Console.g.err("Cannot preform operation bitwise and on " + this.getTypeName() + " with " + v.getTypeName());
+		return TUndefined.getInstance();
+	}
+	
+	@Override
+	public Val bitwiseOr(Val v) {
+		if(v.isNumber())
+			return create(integerValue() | from(v).integerValue());
+		Console.g.err("Cannot preform operation bitwise or on " + this.getTypeName() + " with " + v.getTypeName());
+		return TUndefined.getInstance();
+	}
+	
+	@Override
+	public Val bitwiseXor(Val v) {
+		if(v.isNumber())
+			return create(integerValue() ^ from(v).integerValue());
+		Console.g.err("Cannot preform operation bitwise xor on " + this.getTypeName() + " with " + v.getTypeName());
+		return TUndefined.getInstance();
+	}
+	
+	@Override
+	public Val rotateLeft(Val v) {
+		if(v.isNumber())
+			return create(Integer.rotateLeft(integerValue(), from(v).integerValue()));
+		Console.g.err("Cannot preform operation rotate left on " + this.getTypeName() + " with " + v.getTypeName());
+		return TUndefined.getInstance();
+	}
+	
+	@Override
+	public Val shiftLeft(Val v) {
+		if(v.isNumber())
+			return create(integerValue() << from(v).integerValue());
+		Console.g.err("Cannot preform operation shift left on " + this.getTypeName() + " with " + v.getTypeName());
+		return TUndefined.getInstance();
+	}
+	
+	@Override
+	public Val rotateRight(Val v) {
+		if(v.isNumber())
+			return create(Integer.rotateRight(integerValue(), from(v).integerValue()));
+		Console.g.err("Cannot preform operation rotate right on " + this.getTypeName() + " with " + v.getTypeName());
+		return TUndefined.getInstance();
+	}
+	
+	@Override
+	public Val shiftRight(Val v) {
+		if(v.isNumber())
+			return create(integerValue() >> from(v).integerValue());
+		Console.g.err("Cannot preform operation shift right on " + this.getTypeName() + " with " + v.getTypeName());
+		return TUndefined.getInstance();
+	}
+	
+	@Override
+	public Val as(Val v) {
+		return Val.super.as(v);
+	}
+	
 	public Val approx() {
-		return create(Math.round(get()));
+		return create(Math.floor(get()));
 	}
 	
 	@Override
@@ -169,7 +239,7 @@ public class TNumber implements Val{
 	}
 	
 	public static TNumber create(String s) {
-		if(s.indexOf('.') == -1)
+		if(s.indexOf('.') >= 0)
 			return create(Double.valueOf(s));
 		return create(Integer.valueOf(s));
 	}
@@ -177,5 +247,9 @@ public class TNumber implements Val{
 	@Override
 	public Object getValue() {
 		return get();
+	}
+	
+	public Val is(Val v) {
+		return new TNumber(TNumber.class.isInstance(v));
 	}
 }

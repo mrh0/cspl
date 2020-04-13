@@ -4,9 +4,11 @@ import com.mrh0.qspl.interpreter.evaluator.EvalResult;
 import com.mrh0.qspl.interpreter.evaluator.StatementEval;
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.tokenizer.token.TokenBlock;
+import com.mrh0.qspl.type.TArray;
 import com.mrh0.qspl.type.TContainer;
 import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
+import com.mrh0.qspl.type.number.TNumber;
 import com.mrh0.qspl.util.StringUtil;
 import com.mrh0.qspl.vm.VM;
 import com.mrh0.qspl.vm.scope.Scope;
@@ -33,6 +35,8 @@ public class UserFunc extends TFunc{
 		EvalResult result = StatementEval.evalCodeBlock(block, vm);
 		vm.popScope();
 		Console.g.currentLine = bl;
+		if(StatementEval.exiting)
+			return StatementEval.cancelExit();
 		return result;
 	}
 

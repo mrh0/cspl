@@ -2,8 +2,10 @@ package com.mrh0.qspl.type.func;
 
 import com.mrh0.qspl.interpreter.evaluator.EvalResult;
 import com.mrh0.qspl.io.console.Console;
+import com.mrh0.qspl.type.TArray;
 import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
+import com.mrh0.qspl.type.number.TNumber;
 import com.mrh0.qspl.type.var.Var;
 import com.mrh0.qspl.util.StringUtil;
 import com.mrh0.qspl.vm.VM;
@@ -60,5 +62,9 @@ public abstract class TFunc implements Val{
 	@Override
 	public String toString() {
 		return "func";
+	}
+	
+	public Val is(Val v) {
+		return new TNumber(TFunc.class.isInstance(v));
 	}
 }

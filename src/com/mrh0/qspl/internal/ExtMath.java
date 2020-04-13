@@ -9,8 +9,8 @@ import com.mrh0.qspl.type.func.IFunc;
 import com.mrh0.qspl.type.func.InternalFunc;
 import com.mrh0.qspl.type.number.TNumber;
 import com.mrh0.qspl.vm.VM;
-import com.mrh0.qspl.vm.extension.Module;
-import com.mrh0.qspl.vm.extension.ModuleScope;
+import com.mrh0.qspl.vm.module.Module;
+import com.mrh0.qspl.vm.module.ModuleScope;
 
 public class ExtMath implements Module {
 

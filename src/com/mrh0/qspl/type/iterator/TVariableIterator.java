@@ -2,7 +2,9 @@ package com.mrh0.qspl.type.iterator;
 
 import java.util.Iterator;
 
+import com.mrh0.qspl.type.TArray;
 import com.mrh0.qspl.type.Val;
+import com.mrh0.qspl.type.number.TNumber;
 import com.mrh0.qspl.type.var.Var;
 
 public class TVariableIterator extends TIterator{
@@ -30,5 +32,9 @@ public class TVariableIterator extends TIterator{
 	@Override
 	public String toString() {
 		return "(" + out.getName() + "->" + iterator + ")";
+	}
+	
+	public Val is(Val v) {
+		return new TNumber(TVariableIterator.class.isInstance(v));
 	}
 }
