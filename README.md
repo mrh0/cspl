@@ -171,44 +171,41 @@ Flow control:
 //If x print 'Hello!'
 x:
   out "Hello!";
-else:
-  out "x was not true";
-exit; //Add 'exit;' if the line after an indented line is last line of the program.
+else y:
+  out "x was not true but y was";
+else: 
+  out "x and y was false"
   
 //While x print 'Hello!'
-x::
+loop x:
   out "Hello!";
 else: // If the while condition (x == true) is never meet.
   out "While never ran"; 
-exit; //Add 'exit;' if the line after an indented line is last line of the program.
 
 //Foreach v in g:
 a = new [1,2,3,4];
-let v in a::
-	out v; // Prints all values
-let k of a::
-	out k; // Prints all keys
+loop let v in a:
+  out v; // Prints all values
+loop let k of a:
+  out k; // Prints all keys
+loop let k in a where fn[elem]{elem > 2}:
+  out v; // Prints all values greater than 2
+
 o = new {a=1, b=2, c=3};
-let v in o::
-	out v; // Prints all values
-let k of o::
-	out v; // Prints all keys
+loop let v in o:
+  out v; // Prints all values
+loop let k of o:
+  out v; // Prints all keys
+
+
   
 j = 5;
 out prev; //Prints result of previous statement (5)
-j = false;
-out else; //Prints not result of previous statement (1)
 
 //Prints "Bye":
--3:
+if -3:
   out "Hi";
 else:
-  out "Bye";
-  
-//Prints "Hi" and "Bye":
-4:
-  out "Hi";
-prev:
   out "Bye";
   
 //Loops can also use keywords:
