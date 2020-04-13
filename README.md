@@ -5,7 +5,7 @@ Quick Statement Programming Language v4.1.6
 Qspl is a dynamicly typed, interpreted programing language written in Java by MRH0 (aka MRH/mrhminer/hminer.lll).
 Qspl supports both procedural and functional programming styles and is highly extendable through the java Extension api.
 Syntax and the callback-nature will feel familiar to Javascript users.
-Tested to be ~half speed of luaj in basic loops and arthmetics.
+Tested to be ~execution time of luaj in basic loops and arthmetics.
 
 # Language
 
