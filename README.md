@@ -28,6 +28,7 @@ CONSTANTVALUE = 5; //Constant when variable name is all capital letters
 out "Hello World"[1]; //Prints 'e' to out stream.
 out "Hello World"[0,4]; //Prints 'Hello'
 error "An Error Message"; //Prints message to error stream.
+assert condition //Prints assertion error if condition is false.
 let f=5;
 val f;
 
