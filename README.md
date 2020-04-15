@@ -1,5 +1,5 @@
 # qspl4 - rewritten
-Quick Statement Programming Language v4.1.6
+Quick Statement Programming Language v4.2.1
 
 # About
 Qspl is a dynamicly typed, interpreted programing language written in Java by MRH0 (aka MRH/mrhminer/hminer.lll).
