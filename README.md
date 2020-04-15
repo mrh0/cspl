@@ -73,10 +73,13 @@ Push & Pull: '<- ->' //Example: list = new [1,2,3]; list -> x; //list = [2,3], x
 Bitwise: '& | ^'
 Contains: '?' //Example: 5 ? $[2,4,5,7] : true
 Round: '~' //Example: 5.72~ : 6.0
-Range iterator: '...' //Example: 0...10 : range iterator from 0 to 10
+
 Is type: 'is' //Example: 56 is STRING : false (0)
 As type: 'as' //Example: 56 as STRING : "56"
+Range iterator: '...' //Example: 0...10 : range iterator from 0 to 10
+Iterator operator: 'where' //Example: new [5,10,15,20,25] where fn[e]{e >= 15} : returns iterator of elements [15,20,25]
 Variable iterator: 'in of' //Example: let i in 0...10 : iterate i from 0 to 10
+
 ```
 Arrays:
 ```
@@ -304,7 +307,7 @@ Available under MIT the license more info at: https://tldrlegal.com/license/mit-
 
 MIT License
 
-Copyright 2019 MRH0 (aka MRH/mrhminer/hminer.lll)
+Copyright 2020 MRH0 (aka MRH/mrhminer/hminer.lll)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
