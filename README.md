@@ -4,9 +4,9 @@ Compact Statement Programming Language v4.2.1
 
 # About
 CSPL is a dynamicly typed, interpreted programing language written in Java by MRH0 (aka MRH/mrhminer/hminer.lll).
-cspl supports both procedural and functional programming styles and is highly extendable through the java Extension api.
-Syntax and the callback-nature will feel familiar to Javascript users.
-Tested to be ~execution time of luaj in basic loops and arthmetics.
+cspl supports both procedural and functional programming styles and is extendable through java modules.
+Syntax is sort of a  mashup between Javascript and Python.
+cspl is purpose built to be good for prototyping programming ideas with a deep but intuitive syntax.
 
 # Language
 
