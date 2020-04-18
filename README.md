@@ -3,8 +3,8 @@ Compact Statement Programming Language v4.2.1
 (Formaly: Quick Statement Programing Language)
 
 # About
-Qspl is a dynamicly typed, interpreted programing language written in Java by MRH0 (aka MRH/mrhminer/hminer.lll).
-Qspl supports both procedural and functional programming styles and is highly extendable through the java Extension api.
+CSPL is a dynamicly typed, interpreted programing language written in Java by MRH0 (aka MRH/mrhminer/hminer.lll).
+cspl supports both procedural and functional programming styles and is highly extendable through the java Extension api.
 Syntax and the callback-nature will feel familiar to Javascript users.
 Tested to be ~execution time of luaj in basic loops and arthmetics.
 
