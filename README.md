@@ -268,10 +268,10 @@ import Math; //Imports Math from internal extension.
 import externalVar1 from "com.my.extension.MyExtension@filepath.jar";
 
 //Creating a qspl java extension:
-public class MyExtension implements com.mrh.qspl.io.extension.Extension{
+public class MyExtension implements com.mrh.qspl.vm.module.Module{
   ...
   @Override
-  public void extend(com.mrh.qspl.io.extension.ExtensionScope ext) {
+  public void extend(com.mrh.qspl4.vm.module.ModuleScope ext) {
     ext.export("extensionNumber", new TNumber(42));
     IFunc f = (ArrayList<Value> args, VM vm, Value _this) -> {
       return new TString("Hello " + (args.size()>0?TString.from(args.get(0)).get():"World") + "!");
