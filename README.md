@@ -1,4 +1,4 @@
-# cspl4 - rewritten
+# cspl
 Compact Statement Programming Language v4.2.1 
 (Formaly: Quick Statement Programing Language)
 
