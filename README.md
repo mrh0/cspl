@@ -198,16 +198,13 @@ loop let v in o:
 loop let k of o:
   out v; // Prints all keys
 
-
+out case 5: // Prints "world"
+  3, "hello"; // <CASE>, <SINGLE STATEMENT>;
+  5, "world";
+  7, "earth";
   
 j = 5;
 out prev; //Prints result of previous statement (5)
-
-//Prints "Bye":
-if -3:
-  out "Hi";
-else:
-  out "Bye";
   
 //Loops can also use keywords:
 continue; //Go to loop start.
