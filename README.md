@@ -49,7 +49,7 @@ x1[" World", arg3="?"]; //returns "Hello World?"
 x2[" World!"]; //returns "Hello World!"
 x2[]; //returns "Helloworld"
 
-//Chain (functional):
+//Chain (functional) WIP:
 func double[]:
   exit this*2;
 x = 5;
@@ -60,6 +60,10 @@ func x3[val, index, array]:
   exit (val+1);
 out arr#map[x3]; //Prints [2,3,4,5]
 out arr#map[[o, i, a] => {o+1}]; //Prints [2,3,4,5]
+
+//Anonymous function:
+x4 = fn[x]{x*4};
+out x4[2]; //Prints 8;
 ``` 
 Operators:
 ```
