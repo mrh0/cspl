@@ -264,7 +264,7 @@ import Math; //Imports Math from internal extension.
 //Imports 'externalVar1' from a extension class in a external jar file:
 import externalVar1 from "com.my.extension.MyExtension@filepath.jar";
 
-//Creating a qspl java extension:
+//Creating a cspl java module:
 public class MyExtension implements com.mrh.qspl.vm.module.Module{
   ...
   @Override
