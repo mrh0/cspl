@@ -1,7 +1,6 @@
 package com.mrh0.qspl.type.iterator;
 
 import java.util.Iterator;
-
 import com.mrh0.qspl.type.Val;
 import com.mrh0.qspl.util.SortingType;
 

@@ -16,6 +16,11 @@ public class TString implements Val, IIterable{
 		value = "";
 	}
 	
+	@Override
+	public TAtom getTypeAtom() {
+		return TAtom.get("string");
+	}
+	
 	public TString(TString s) {
 		value = s.get();
 	}
@@ -185,5 +190,10 @@ public class TString implements Val, IIterable{
 	
 	public Val is(Val v) {
 		return new TNumber(TString.class.isInstance(v));
+	}
+	
+	@Override
+	public int compare(Val v) {
+		return value.compareTo(v.toString());
 	}
 }

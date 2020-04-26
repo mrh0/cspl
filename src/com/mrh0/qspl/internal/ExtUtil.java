@@ -133,5 +133,10 @@ public class ExtUtil implements Module{
 			return TUndefined.getInstance();
 		};
 		ext.export("testfunc", new InternalFunc(f, "a", "b", "c", "d"));
+		
+		f = (VM vm, Val _this, Arguments args) -> {
+			return TNumber.create(args.get(0).compare(args.get(1)));
+		};
+		ext.export("cmpr", new InternalFunc(f, "a", "b"));
 	}
 }

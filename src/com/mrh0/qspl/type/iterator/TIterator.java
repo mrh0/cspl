@@ -3,6 +3,7 @@ package com.mrh0.qspl.type.iterator;
 import java.util.Iterator;
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.type.TArray;
+import com.mrh0.qspl.type.TAtom;
 import com.mrh0.qspl.type.Val;
 import com.mrh0.qspl.type.number.TNumber;
 import com.mrh0.qspl.type.var.Var;
@@ -12,6 +13,11 @@ public abstract class TIterator implements Val, Iterator<Val>, IIterable{
 	@Override
 	public boolean booleanValue() {
 		return hasNext();
+	}
+	
+	@Override
+	public TAtom getTypeAtom() {
+		return TAtom.get("iterator");
 	}
 
 	@Override

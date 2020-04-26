@@ -273,7 +273,7 @@ public class FirstPass {
 		ctype = lastCheck(rtoken);
 		//Add start parentheses round function def
 		if(ctype == TokenType.PRE_BLOCK_KEYWORD) {
-			if(rtoken.equals("func"))
+			if(rtoken.equals("func") || rtoken.equals("fn"))
 				tokens.add(new Token("(", TokenType.SEPERATOR, line));
 		}
 		tokens.add(new Token(rtoken, ctype, line));

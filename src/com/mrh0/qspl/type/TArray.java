@@ -23,6 +23,11 @@ public class TArray implements Val, IIterable{
 			this.add(v);
 	}
 	
+	@Override
+	public TAtom getTypeAtom() {
+		return TAtom.get("array");
+	}
+	
 	public TArray(ArrayList<Var> values) {
 		values = new ArrayList<Var>();
 		for(int i = 0; i < values.size(); i++) {
@@ -72,7 +77,7 @@ public class TArray implements Val, IIterable{
 
 	@Override
 	public Object getValue() {
-		return this;
+		return values;
 	}
 	
 	public Var get(int i) {
@@ -97,10 +102,23 @@ public class TArray implements Val, IIterable{
 	}
 	
 	@Override
+	public Val push(Val v) {
+		values.add(new Var(size()+"", v));
+		return this;
+	}
+	
+	public Val add(TArray v) {
+		if(v.isArray()) {
+			TArray r = new TArray(values);
+			r.merge(TArray.from(v));
+			return r;
+		}
+		return Val.super.add(v);
+	}
+	
+	@Override
 	public Val add(Val v) {
-		Var var = new Var(size()+"", v);
-		values.add(var);
-		return var;
+		return push(v);
 	}
 	
 	@Override
@@ -114,7 +132,7 @@ public class TArray implements Val, IIterable{
 			}
 			return new TString(sb.toString());
 		}
-		return TUndefined.getInstance();
+		return Val.super.multi(v);
 	}
 	
 	@Override
@@ -268,5 +286,11 @@ public class TArray implements Val, IIterable{
 	
 	public Val is(Val v) {
 		return new TNumber(TArray.class.isInstance(v));
+	}
+	
+	public void merge(TArray a) {
+		for(Val v : a) {
+			add(v);
+		}
 	}
 }

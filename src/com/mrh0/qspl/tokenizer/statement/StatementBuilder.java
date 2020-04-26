@@ -47,7 +47,7 @@ public class StatementBuilder {
 		String s = cur.getToken();
 		
 		if(t == TokenType.IDENTIFIER  || t == TokenType.VAL_KEYWORD || t == TokenType.KEYWORD
-				|| t == TokenType.ACCESSOR_BLOCK || t == TokenType.OBJ_BLOCK || t == TokenType.ARY_BLOCK  || t == TokenType.ARG_BLOCK//  || t == TokenType.CODE_BLOCK 
+				 || t == TokenType.OBJ_BLOCK || t == TokenType.ARY_BLOCK  || t == TokenType.ARG_BLOCK//  || t == TokenType.CODE_BLOCK // || t == TokenType.ACCESSOR_BLOCK
 				//|| t == TokenType.IF_BLOCK || t == TokenType.WHILE_BLOCK
 				) {
 			pAdd(cur);
@@ -116,25 +116,7 @@ public class StatementBuilder {
 	}
 	
 	private void pAdd(Token t) {
-		System.out.println(t);
 		postfix.add(t);
-		if(t.getToken().equals("func")) {
-			System.out.println("P"+postfix + " : " + opStack);
-			/*Token top = opStack.pop();
-			while(!top.getToken().equals("(")) {
-				pAdd(top);
-				try {
-					top = opStack.pop();
-				}
-				catch(Exception e) {
-					Console.g.err("Misplaced parentheses error.");
-					e.printStackTrace();
-					break;
-				}
-			}*/
-		}
-		
-		
 	}
 	
 	public LinkedList<Token> optimized(){
@@ -195,7 +177,7 @@ public class StatementBuilder {
 							r = TNumber.create(!lvv.equals(rvv));
 							break;
 						default:
-							System.err.println("failed optimize: " + postfix.get(i));
+							System.err.println("failed optimize: " + postfix.get(i) + " (UNIMPLEMENTED)");
 							break;
 					}
 					ostack.push(new TokenVal(r.getValue()+"", r, rv.getLine()));

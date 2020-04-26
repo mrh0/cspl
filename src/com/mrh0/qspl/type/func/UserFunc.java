@@ -9,6 +9,7 @@ import com.mrh0.qspl.type.TContainer;
 import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
 import com.mrh0.qspl.type.number.TNumber;
+import com.mrh0.qspl.type.var.Var;
 import com.mrh0.qspl.util.StringUtil;
 import com.mrh0.qspl.vm.VM;
 import com.mrh0.qspl.vm.scope.Scope;
@@ -32,6 +33,7 @@ public class UserFunc extends TFunc{
 		int bl = Console.g.currentLine;
 		vm.pushScope(new Scope("ufunc"));
 		vm.setVariables(defaults, args);
+		vm.setVariable(new Var("this", _this));
 		EvalResult result = StatementEval.evalCodeBlock(block, vm);
 		vm.popScope();
 		Console.g.currentLine = bl;

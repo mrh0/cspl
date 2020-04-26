@@ -2,6 +2,7 @@ package com.mrh0.qspl.type.number;
 
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.type.TArray;
+import com.mrh0.qspl.type.TAtom;
 import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
 import com.mrh0.qspl.type.var.Var;
@@ -13,6 +14,11 @@ public class TNumber implements Val{
 	
 	public TNumber() {
 		value = 0;
+	}
+	
+	@Override
+	public TAtom getTypeAtom() {
+		return TAtom.get("number");
 	}
 	
 	public TNumber(TNumber n) {

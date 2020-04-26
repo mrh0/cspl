@@ -6,13 +6,13 @@ import com.mrh0.qspl.type.Val;
 public class EvalResult{
 	private Val result;
 	private Exception error;
-	private StatementEval.IfChainState pass = StatementEval.IfChainState.PASS;
+	private StatementEval.ChainState pass = StatementEval.ChainState.PASS;
 	
 	public EvalResult(Val result) {
 		this.result = result;
 	}
 	
-	public EvalResult(Val result, StatementEval.IfChainState pass) {
+	public EvalResult(Val result, StatementEval.ChainState pass) {
 		this.result = result;
 		this.pass = pass;
 	}
@@ -25,7 +25,7 @@ public class EvalResult{
 		return this.result;
 	}
 	
-	public StatementEval.IfChainState didPass() {
+	public StatementEval.ChainState didPass() {
 		return this.pass;
 	}
 }

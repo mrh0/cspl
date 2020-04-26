@@ -47,6 +47,10 @@ public class SecondPass {
 						stmts.peek().setFunc();
 						funcCall = true;
 						break;
+					case "fn":
+						stmts.peek().setFunc();
+						funcCall = true;
+						break;
 				}
 			}
 			else if(t == TokenType.APPEND) {

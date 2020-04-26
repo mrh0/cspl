@@ -20,8 +20,11 @@ import com.mrh0.qspl.type.iterator.IIterable;
 import com.mrh0.qspl.type.iterator.TFilterIterator;
 import com.mrh0.qspl.type.iterator.TRangeIterator;
 import com.mrh0.qspl.type.number.TNumber;
+import com.mrh0.qspl.type.var.ISubstituteVar;
 import com.mrh0.qspl.type.var.Var;
 import com.mrh0.qspl.type.var.VarDef;
+import com.mrh0.qspl.util.ArrayUtil;
+import com.mrh0.qspl.util.SortingType;
 import com.mrh0.qspl.type.iterator.TVariableIterator;
 import com.mrh0.qspl.vm.VM;
 
@@ -31,7 +34,7 @@ public class StatementEval {
 	private VM vm;
 	private BlockType bt;
 	private boolean blockPass = false;
-	private IfChainState ifChainState;
+	private ChainState ifChainState;
 	
 	public static boolean exiting = false;
 	public static EvalResult exitResult = new EvalResult(TUndefined.getInstance());
@@ -53,15 +56,15 @@ public class StatementEval {
 		return r;
 	}
 	
-	public enum IfChainState {
-		PASS, FAIL, BLOCKED
+	public enum ChainState {
+		PASS, FAIL, BLOCKED, CASE
 	};
 	
 	private enum BlockType {
 		CODE, ARRAY, OBJECT, CONTAINER, ACCESSOR
 	}
 	
-	public StatementEval(Statement s, VM vm, BlockType bt, ValStack vals, boolean blockPass, IfChainState ifChainState) {
+	public StatementEval(Statement s, VM vm, BlockType bt, ValStack vals, boolean blockPass, ChainState ifChainState) {
 		this.s = s;
 		vals.clear();
 		this.vals = vals;
@@ -183,7 +186,7 @@ public class StatementEval {
 							break;
 						case "<-":
 							hl = vals.pop();
-							vals.push(vals.pop().push(hl));
+							vals.push(vals.pop().add(hl));
 							break;
 							
 						case "&&":
@@ -247,8 +250,6 @@ public class StatementEval {
 							break;
 						case "#":
 							hl = vals.pop();
-							if(bt != BlockType.CODE)
-								Console.g.err("Invalid use of operator '#'.");
 							vl = vals.pop();
 							vals.push(vl.accessor(new TString(Var.from(hl).getName())));
 							break;
@@ -289,6 +290,25 @@ public class StatementEval {
 							hl = vals.pop();
 							vals.push(new TFilterIterator(TFunc.from(hl), IIterable.from(vals.pop()), vm));
 							break;
+						case "orderasc":
+							if(vals.peek().isIterable()) {
+								Iterator<Val> it = IIterable.from(vals.pop()).iterator();
+								vals.push(new TArray(ArrayUtil.iteratorSort(it, SortingType.ASC)));
+							}
+							break;
+						case "orderdesc":
+							if(vals.peek().isIterable()) {
+								Iterator<Val> it = IIterable.from(vals.pop()).iterator();
+								vals.push(new TArray(ArrayUtil.iteratorSort(it, SortingType.DESC)));
+							}
+							break;
+						case "orderby":
+							hl = vals.pop();
+							if(vals.peek().isIterable()) {
+								Iterator<Val> it = IIterable.from(vals.pop()).iterator();
+								vals.push(new TArray(ArrayUtil.iteratorSort(it, TFunc.from(hl), vm)));
+							}
+							break;
 						}
 					break;
 				
@@ -304,9 +324,6 @@ public class StatementEval {
 						case "undefined":
 							vals.push(TUndefined.getInstance());
 							break;
-						/*case "else":
-							vals.push(TNumber.create(!blockPass));
-							break;*/
 						case "prev":
 							vals.push(vm.getPreviousResult());
 							break;
@@ -353,23 +370,27 @@ public class StatementEval {
 					Token nt = s.getToken(i-1);
 					switch(t.getToken()) {
 						case "else":
-							if((vals.isEmpty()|| vals.pop().booleanValue()) && ifChainState == IfChainState.FAIL) {
+							if((vals.isEmpty()|| vals.pop().booleanValue()) && ifChainState == ChainState.FAIL) {
 								vals.push(evalBlock((TokenBlock)s.getToken(i-1), vm).getResult());
-								ifChainState = IfChainState.BLOCKED;
+								ifChainState = ChainState.BLOCKED;
 							}
 							break;
 						case "if":
-							ifChainState = IfChainState.FAIL;
+							ifChainState = ChainState.FAIL;
 							if(vals.pop().booleanValue()) {
 								vals.push(evalBlock((TokenBlock)s.getToken(i-1), vm).getResult());
-								ifChainState = IfChainState.BLOCKED;
+								ifChainState = ChainState.BLOCKED;
 							}
+							break;
+						case "case":
+							ifChainState = ChainState.CASE;
+							vals.push(evalSwitchBlock((TokenBlock)s.getToken(i-1), vm, vals.pop()).getResult());
 							break;
 						case "func":
 							hl = vals.pop();
 							vl = vals.pop();
-							if(hl.isFunction())
-								Console.g.err("Function has already been defined.");
+							/*if(hl.isFunction())
+								Console.g.err("Function has already been defined.");*/
 							if(!hl.isContainer() || !vl.isVariable() || !(nt instanceof TokenBlock))
 								Console.g.err("Malformed function definition." + nt);
 							
@@ -377,12 +398,20 @@ public class StatementEval {
 							vl.assign(new UserFunc(nblock, TContainer.from(hl)));
 							vals.push(new VarDef((Var)vl));
 							break;
+						case "fn":
+							hl = vals.pop();
+							if(!hl.isContainer() || !(nt instanceof TokenBlock))
+								Console.g.err("Malformed anonymous function definition." + nt);
+							
+							TokenBlock nblock3 = (TokenBlock)nt;
+							vals.push(new UserFunc(nblock3, TContainer.from(hl)));
+							break;
 						case "loop":
-							ifChainState = IfChainState.FAIL;
+							ifChainState = ChainState.FAIL;
 							if(vals.peek().isIterable()) {
-								Iterator<Val> it = IIterable.from(vals.peek()).iterator();
+								Iterator<Val> it = IIterable.from(vals.pop()).iterator();
 								while(it.hasNext()) {
-									ifChainState = IfChainState.BLOCKED;
+									ifChainState = ChainState.BLOCKED;
 									it.next();
 									evalBlock((TokenBlock)nt, vm);
 								}
@@ -390,7 +419,7 @@ public class StatementEval {
 							}
 							else if(vals.peek().booleanValue()) {
 								evalBlock((TokenBlock)nt, vm);
-								ifChainState = IfChainState.BLOCKED;
+								ifChainState = ChainState.BLOCKED;
 								//try {Thread.sleep(500);
 								//} catch (InterruptedException e) {e.printStackTrace();}
 								i = -1;
@@ -475,10 +504,10 @@ public class StatementEval {
 		EvalResult r = new EvalResult(TUndefined.getInstance());
 		ValStack bvals = new ValStack();
 		boolean blockPass = true;
-		IfChainState chain = IfChainState.BLOCKED;
+		ChainState chain = ChainState.BLOCKED;
 		for(int i = 0; i < l.length; i++) {
 			r = new StatementEval(l[i], vm, BlockType.CODE, bvals, blockPass, chain).eval();
-			blockPass = r.didPass()==IfChainState.PASS;
+			blockPass = r.didPass()==ChainState.PASS;
 			chain = r.didPass();
 			vm.setPreviousResult(r.getResult());
 		}
@@ -507,13 +536,13 @@ public class StatementEval {
 		return new EvalResult(a);
 	}
 	
-	public EvalResult evalObjectBlock(TokenBlock b, VM vm) {
+	/*public EvalResult evalObjectBlock(TokenBlock b, VM vm) {
 		Statement[] l = b.getBlock().getStatements();
 		for(int i = 0; i < l.length; i++) {
 			
 		}
 		return new EvalResult(TUndefined.getInstance());
-	}
+	}*/
 	
 	public EvalResult evalContainerBlock(TokenBlock b, VM vm) {
 		Statement[] l = b.getBlock().getStatements();
@@ -521,6 +550,19 @@ public class StatementEval {
 		ValStack bvals = new ValStack();
 		for(int i = 0; i < l.length; i++) {
 			c.add(new StatementEval(l[i], vm, BlockType.CONTAINER, bvals, blockPass, ifChainState).eval().getResult());
+		}
+		return new EvalResult(c);
+	}
+	
+	public EvalResult evalSwitchBlock(TokenBlock b, VM vm, Val match) {
+		Statement[] l = b.getBlock().getStatements();
+		TContainer c = new TContainer();
+		ValStack bvals = new ValStack();
+		if(l.length%2 != 0)
+			Console.g.err("Malformed Switch Statement.");
+		for(int i = 0; i < l.length; i+=2) {
+			if(new StatementEval(l[i], vm, BlockType.CONTAINER, bvals, blockPass, ifChainState).eval().getResult().equals(match))
+				return new StatementEval(l[i+1], vm, BlockType.CONTAINER, bvals, blockPass, ifChainState).eval();
 		}
 		return new EvalResult(c);
 	}
@@ -582,7 +624,10 @@ public class StatementEval {
 				args.add(v);
 				assigned++;
 			}
-			return f.execute(vm, TUndefined.getInstance(), new Arguments(args));
+			Val _this = TUndefined.getInstance();
+			if(toAccess.isSubstitute())
+				_this = ((ISubstituteVar)toAccess).getSource();
+			return f.execute(vm, _this, new Arguments(args));
 		}
 		return new EvalResult(toAccess.accessor(stmtResult));
 	}

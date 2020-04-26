@@ -3,6 +3,7 @@ package com.mrh0.qspl.type.func;
 import com.mrh0.qspl.interpreter.evaluator.EvalResult;
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.type.TArray;
+import com.mrh0.qspl.type.TAtom;
 import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
 import com.mrh0.qspl.type.number.TNumber;
@@ -15,6 +16,11 @@ public abstract class TFunc implements Val{
 	@Override
 	public int getType() {
 		return 0;
+	}
+	
+	@Override
+	public TAtom getTypeAtom() {
+		return TAtom.get("function");
 	}
 
 	@Override
@@ -40,6 +46,10 @@ public abstract class TFunc implements Val{
 	@Override
 	public boolean isFunction() {
 		return true;
+	}
+	
+	public Class<? extends Val> extendsType() {
+		return Val.class;
 	}
 	
 	public abstract String getArgName(int i);

@@ -43,6 +43,8 @@ public class Tokens {
 				return true;
 			case "export":
 				return true;
+			case "module":
+				return true;
 			case "delete":
 				return true;
 			case "with":
@@ -71,11 +73,11 @@ public class Tokens {
 				return true;
 			case "for":
 				return true;
-			case "switch":
-				return true;
 			case "case":
 				return true;
 			case "func":
+				return true;
+			case "fn":
 				return true;
 			case "else":
 				return true;
@@ -108,6 +110,8 @@ public class Tokens {
 			case "orderasc":
 				return true;
 			case "orderdesc":
+				return true;
+			case "orderby":
 				return true;
 		}
 		return false;
@@ -260,11 +264,11 @@ public class Tokens {
 					case "let":
 						return 20;
 					case "where":
-						return 1;
+						return 2;
 					case "orderasc":
-						return 1;
+						return 3;
 					case "orderdesc":
-						return 1;
+						return 3;
 				}
 				return 20;
 			case TAIL_KEYWORD:
@@ -283,6 +287,8 @@ public class Tokens {
 				return 25;
 			case OBJ_BLOCK:
 				return 25;
+			case ACCESSOR_BLOCK:
+				return 13;
 			case APPEND:
 				return 50;
 		}

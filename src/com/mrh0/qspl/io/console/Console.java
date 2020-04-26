@@ -15,14 +15,14 @@ public class Console {
 	private PrintStream errStream;
 	
 	private String getLogPrefix() {
-		return "[OUT:"+currentLine+""+getScope()+"]: ";
+		return "[OUT:"+(currentLine-1)+""+getScope()+"]: ";
 	}
 	
 	private String logSurfix = "";
 	private String logSeperator = ",";
 	
 	private String getErrPrefix() {
-		return "[ERR:"+currentLine+""+getScope()+"]: ";
+		return "[ERR:"+(currentLine-1)+""+getScope()+"]: ";
 	}
 	
 	private String errSurfix = "";

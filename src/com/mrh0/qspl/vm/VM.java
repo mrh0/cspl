@@ -21,11 +21,12 @@ public class VM {
 	private Scope root;
 	private Val previous;
 	private EvalQueue queue;
+	private Module currentModule;
 	
 	public VM() {
 		queue = new EvalQueue(this);
 		scopeStack = new Stack<Scope>();
-		root = new Scope("origin");
+		root = new Scope("root");
 		scopeStack.add(root);
 		exports = new TContainer();
 		TAtom.init();

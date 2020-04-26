@@ -17,6 +17,11 @@ public class TAtom implements Val{
 		atomStore.put(name, this);
 	}
 	
+	@Override
+	public TAtom getTypeAtom() {
+		return TAtom.get("atom");
+	}
+	
 	private TAtom(TAtom atom) {
 		this.name = atom.name;
 		

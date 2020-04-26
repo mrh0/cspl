@@ -6,6 +6,11 @@ public class TClass implements Val{
 	public int getType() {
 		return 0;
 	}
+	
+	@Override
+	public TAtom getTypeAtom() {
+		return TAtom.get("class");
+	}
 
 	@Override
 	public Val duplicate() {

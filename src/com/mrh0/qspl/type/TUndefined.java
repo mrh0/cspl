@@ -10,6 +10,11 @@ public class TUndefined implements Val{
 		if(instance == null)
 			instance = this;
 	}
+	
+	@Override
+	public TAtom getTypeAtom() {
+		return TAtom.get("undefined");
+	}
 
 	@Override
 	public Val duplicate() {

@@ -6,6 +6,8 @@ import java.util.List;
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.type.iterator.IIterable;
 import com.mrh0.qspl.type.number.TNumber;
+import com.mrh0.qspl.type.var.ISubstituteVar;
+import com.mrh0.qspl.type.var.Var;
 
 public interface Val {
 	@Deprecated
@@ -18,6 +20,8 @@ public interface Val {
 	public default Object getValue() {
 		return this;
 	}
+	
+	public TAtom getTypeAtom();
 	
 	//Defaults:
 	public default boolean isUndefined() {
@@ -54,6 +58,10 @@ public interface Val {
 	
 	public default boolean isAtom() {
 		return false;
+	}
+	
+	public default boolean isSubstitute() {
+		return this instanceof ISubstituteVar;
 	}
 	
 	public default boolean isIterable() {
@@ -98,8 +106,9 @@ public interface Val {
 	}
 	
 	public default Val is(Val v) {
-		Console.g.err("Cannot preform operation is on " + this.getTypeName() + " with " + v.getTypeName());
-		return TUndefined.getInstance();
+		//Console.g.err("Cannot preform operation is on " + this.getTypeName() + " with " + v.getTypeName());
+		return TNumber.create(this.getClass().isInstance(v));
+		//return TUndefined.getInstance();
 	}
 	
 	public default Val logicalAnd(Val v) {
@@ -199,5 +208,11 @@ public interface Val {
 	public default Val accessor(List<Val> args) {
 		Console.g.err("Cannot preform operation accessor with " + args.size() + (args.size()==1?" argument on ":" arguments on ") + this.getTypeName());
 		return TUndefined.getInstance();
+	}
+	
+	public static Val prim(Val v) {
+		if(v.isVariable())
+			return Var.from(v).get();
+		return v;
 	}
 }
