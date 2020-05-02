@@ -1,5 +1,5 @@
 # cspl
-Compact Statement Programming Language v4.2.1 
+Compact Script Programming Language v4.2.1 
 (Formaly: Quick Statement Programing Language)
 
 # About
