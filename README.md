@@ -69,7 +69,7 @@ Operators:
 ```
 Math: '+ - * / % ++ -- **'
 Assigning: '= += -= *= /= %='
-Boolean: '&& || ! == < > <= >='
+Boolean: '&& || ^^ ! == < > <= >='
 Shift & Rotate: '<< >> <<< >>>'
 Push & Pull: '<- ->' //Example: list = new [1,2,3]; list -> x; //list = [2,3], x = 1
 Bitwise: '& | ^'
@@ -78,7 +78,7 @@ Round: '~' //Example: 5.72~ : 6.0
 
 Is type: 'is' //Example: 56 is STRING : false (0)
 As type: 'as' //Example: 56 as STRING : "56"
-Range iterator: '...' //Example: 0...10 : range iterator from 0 to 10
+Range iterator: '..' //Example: 0...10 : range iterator from 0 to 10
 Iterator operator: 'where' //Example: new [5,10,15,20,25] where fn[e]{e >= 15} : returns iterator of elements [15,20,25]
 Variable iterator: 'in of' //Example: let i in 0...10 : iterate i from 0 to 10
 
@@ -108,10 +108,10 @@ out a[-1, 0]; // : [8.0, 4.0, 2.0, 1.0]
 out a[-2, -1]; // : [4.0, 8.0]
 out a[-1, -2]; // : [8.0, 4.0]
 
-out a[0...2]; // : [1.0, 2.0, 4.0]
-out a[2...0]; // : [4.0, 2.0, 1.0]
+out a[0..2]; // : [1.0, 2.0, 4.0]
+out a[2..0]; // : [4.0, 2.0, 1.0]
 
-out a[0...-1]; // : [1.0, 8.0]
+out a[0..-1]; // : [1.0, 8.0]
 
 out a[new[0, -1]]; // : [1.0, 8.0]
 
@@ -291,10 +291,12 @@ error "Some error message."; //Prints [ERR:line:scope]: 'Some message.' to Syste
 exit value; //Exits current scope such as a function or program file and returns value.
 prev; //Returns result of previous same block statement.
 else; //Returns inverse boolean result of previous same block statement.
-value in array:: //Iterates through all values of array.
-value of array:: //Iterates through all keys of array.
-value in object:: //Iterates through all values of object.
-value of object:: //Iterates through all keys of object.
+value in array:: //Iterates through all values of the array.
+value of array:: //Iterates through all indices of the array.
+value in object:: //Iterates through all values of the object.
+value of object:: //Iterates through all keys of the object.
+value in string:: //Iterates through all characters of the string.
+value of string:: //Iterates through all indices of the string.
 break; //Cancels further execution in block.
 continue; //Cancels further execution in block until next iteration.
 ```
