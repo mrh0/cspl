@@ -17,6 +17,11 @@ public class TVariableIterator extends TIterator{
 		this.iterator = it.iterator();
 	}
 
+	public TVariableIterator(Var v, IKeyIterable it) {
+		this.out = v;
+		this.iterator = it.keyIterator();
+	}
+
 	@Override
 	public boolean hasNext() {
 		return iterator.hasNext();

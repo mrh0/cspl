@@ -1,12 +1,15 @@
 package com.mrh0.qspl.internal;
 
 import java.util.List;
+import java.util.Random;
+
 import com.mrh0.qspl.type.TString;
 import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
 import com.mrh0.qspl.type.func.Arguments;
 import com.mrh0.qspl.type.func.IFunc;
 import com.mrh0.qspl.type.func.InternalFunc;
+import com.mrh0.qspl.type.iterator.TIterator;
 import com.mrh0.qspl.type.number.TNumber;
 import com.mrh0.qspl.vm.VM;
 import com.mrh0.qspl.vm.module.Module;
@@ -154,5 +157,36 @@ public class ExtMath implements Module {
 			return new TNumber(Math.pow(TNumber.from(args.get(0)).get(),TNumber.from(args.get(1)).get()));
 		};
 		ext.export("pow", new InternalFunc(f));
+		
+		f = (VM vm, Val _this, Arguments args) -> {
+			double min = Double.MAX_VALUE;
+			double max = Double.MIN_VALUE;
+			for(int i = 0; i < args.size(); i++) {
+				//if(args.get(i))
+			}
+			return TNumber.create(Math.abs(max - min));
+		};
+		ext.export("delta", new InternalFunc(f));
+		
+		f = (VM vm, Val _this, Arguments args) -> {
+			return new InfIterator();
+		};
+		ext.export("infIter", new InternalFunc(f));
+	}
+	
+	public class InfIterator extends TIterator{
+		
+		private int i = 0;
+		
+		@Override
+		public boolean hasNext() {
+			return true;
+		}
+
+		@Override
+		public Val next() {
+			return new TNumber(i++);
+		}
+		
 	}
 }

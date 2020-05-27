@@ -12,8 +12,8 @@ import com.mrh0.qspl.type.var.Var;
 import com.mrh0.qspl.vm.VM;
 
 public class Include {
-	public static TContainer include(String path) {
-		if(path.endsWith(".qs") || path.endsWith(".qspl")) {
+	public static TContainer module(String path) {
+		if(path.endsWith(".qs") || path.endsWith(".qspl") || path.endsWith(".csl") || path.endsWith(".cspl")) {
 			return fromFile(path);
 		}
 		if(path.endsWith(".jar")) {
@@ -21,6 +21,10 @@ public class Include {
 		}
 		Console.g.err("Unknown import type: '" + path + "'.");
 		return new TContainer();
+	}
+	
+	public static TContainer module(Module mod) {
+		return fromModule(mod);
 	}
 	
 	public static TContainer fromFile(String path) {
@@ -31,8 +35,6 @@ public class Include {
 		tokens.insertCode(code);
 		VM vm = new VM();
 		Interpreter interp = new Interpreter(vm, tokens);
-		
-		
 		
 		vm.setVariable(new Var("this", TUndefined.getInstance()));
 		//Common.defineCommons(vm.getCurrentScope());
@@ -51,13 +53,13 @@ public class Include {
 		try {
 			return fromModule(JarLoader.getExtension(args[1], args[0]));
 		} catch (ClassNotFoundException | MalformedURLException | InstantiationException | IllegalAccessException e) {
-			Console.g.err("Error occured with loading extension jar: '" + path + "'.");
+			Console.g.err("Error occured while loading module jar: '" + path + "'.");
 			e.printStackTrace();
 		}
 		return new TContainer();
 	}
 	
-	public static TContainer fromModule(Module ext) {
+	private static TContainer fromModule(Module ext) {
 		ModuleScope es = new ModuleScope();
 		ext.extend(es);
 		return es.getExports();

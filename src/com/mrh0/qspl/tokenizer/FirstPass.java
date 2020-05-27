@@ -22,6 +22,7 @@ public class FirstPass {
 	private int line = 0;
 	private int targetindent = 0;
 	private int indent = 0;
+	private boolean importCall = false;
 	
 	private Stack<Boolean> indentStack;
 
@@ -162,6 +163,10 @@ public class FirstPass {
 			else if(Tokens.isEndOfStatement(c)) {
 				if(ctype != TokenType.END)
 					end();
+				if(c == ';' && importCall) {
+					tokens.add(new Token("import", TokenType.TAIL_KEYWORD, line));
+					importCall = false;
+				}
 				consume(c, TokenType.END);
 				continue;
 			}
@@ -183,10 +188,10 @@ public class FirstPass {
 				if(Tokens.canBeLiteral(c)) {
 					if(ctype == TokenType.LITERAL) {
 						consume(c, TokenType.LITERAL);
-						if(ctoken.length() >= 3 && ctoken.substring(ctoken.length()-3).equals("...")) {
-							ctoken.delete(ctoken.length()-3, ctoken.length());
+						if(ctoken.length() >= 2 && ctoken.substring(ctoken.length()-2).equals("..")) {
+							ctoken.delete(ctoken.length()-2, ctoken.length());
 							end();
-							tokens.add(new Token("...", TokenType.OPERATOR, line));
+							tokens.add(new Token("..", TokenType.OPERATOR, line));
 						}
 						continue;
 					}
@@ -249,7 +254,7 @@ public class FirstPass {
 		//Ignore if:
 		if(rtoken.length() == 0 && ctype == TokenType.NONE)
 			return;
-		if(rtoken.length() == 0) {
+		if(rtoken.length() == 0 && ctype != TokenType.STRING) {
 			ctype = TokenType.NONE;
 			return;
 		}
@@ -276,6 +281,26 @@ public class FirstPass {
 			if(rtoken.equals("func") || rtoken.equals("fn"))
 				tokens.add(new Token("(", TokenType.SEPERATOR, line));
 		}
+		else if(ctype == TokenType.KEYWORD) {
+			if(rtoken.equals("from")) {
+				if(importCall) {
+					rtoken = "importfrom";
+					importCall = false;
+					ctype = TokenType.TAIL_KEYWORD;
+				}
+				else {
+					Console.g.err("Keyword 'from' cannot be used in this context.");
+				}
+			}
+		}
+		else if(ctype == TokenType.TAIL_KEYWORD) {
+			if(rtoken.equals("import")) {
+				importCall = true;
+				clear();
+				return;
+			}
+		}
+		
 		tokens.add(new Token(rtoken, ctype, line));
 		
 		//Reset:

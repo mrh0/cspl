@@ -1,9 +1,6 @@
 package com.mrh0.qspl.vm.queue;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-
 import com.mrh0.qspl.vm.VM;
 import com.mrh0.qspl.vm.queue.QueueEntry.ExecutionState;
 
@@ -18,16 +15,35 @@ public class EvalQueue {
 		this.vm = vm;
 	}
 	
-	public void enqueue(Constructor<QueueEntry> qi) {
-		try {
-			queue.add(qi.newInstance(queue.size()));
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			e.printStackTrace();
+	public void spawn(QueueEntry qe) {
+		enqueue(qe);
+		qe.start(vm);
+	}
+	
+	public void cancel(QueueEntry qe) {
+		qe.cancel(vm);
+		synchronized(queue) {
+			queue.remove(qe);
+		}
+	}
+	
+	public void trigger(QueueEntry qe) {
+		qe.ready(vm);
+		synchronized(queue) {
+			queue.remove(qe);
+		}
+	}
+	
+	private void enqueue(QueueEntry qe) {
+		synchronized(queue) {
+			queue.add(qe);
 		}
 	}
 	
 	private QueueEntry dequeue() {
-		return queue.remove(queue.size()-1);
+		synchronized(queue) {
+			return queue.remove(queue.size()-1);
+		}
 	}
 	
 	public void start() {
@@ -36,14 +52,9 @@ public class EvalQueue {
 			del = new ArrayList<Integer>();
 			for(int i = 0; i < queue.size(); i++) {
 				QueueEntry q = queue.get(i);
-				if(q.getExecutionState() == ExecutionState.READY) {
-					q.execute();
-				}
-				else if(q.getExecutionState() == ExecutionState.READY_CANCEL) {
-					q.execute();
-					del.add(i);
-				}
-				else if(q.getExecutionState() == ExecutionState.CANCEL) {
+				ExecutionState state = q.getState();
+				if(state != ExecutionState.AWAIT) {
+					q.end(state, vm);
 					del.add(i);
 				}
 			}

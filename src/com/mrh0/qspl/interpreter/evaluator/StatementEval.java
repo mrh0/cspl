@@ -3,6 +3,7 @@ package com.mrh0.qspl.interpreter.evaluator;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import com.mrh0.qspl.internal.StandardModules;
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.tokenizer.statement.Statement;
 import com.mrh0.qspl.tokenizer.token.Token;
@@ -15,8 +16,9 @@ import com.mrh0.qspl.type.TUndefined;
 import com.mrh0.qspl.type.Val;
 import com.mrh0.qspl.type.func.Arguments;
 import com.mrh0.qspl.type.func.TFunc;
-import com.mrh0.qspl.type.func.UserFunc;
+import com.mrh0.qspl.type.func.TUserFunc;
 import com.mrh0.qspl.type.iterator.IIterable;
+import com.mrh0.qspl.type.iterator.IKeyIterable;
 import com.mrh0.qspl.type.iterator.TFilterIterator;
 import com.mrh0.qspl.type.iterator.TRangeIterator;
 import com.mrh0.qspl.type.number.TNumber;
@@ -27,6 +29,8 @@ import com.mrh0.qspl.util.ArrayUtil;
 import com.mrh0.qspl.util.SortingType;
 import com.mrh0.qspl.type.iterator.TVariableIterator;
 import com.mrh0.qspl.vm.VM;
+import com.mrh0.qspl.vm.module.Module;
+import com.mrh0.qspl.vm.module.Include;
 
 public class StatementEval {
 	private Statement s;
@@ -197,13 +201,17 @@ public class StatementEval {
 							hl = vals.pop();
 							vals.push(vals.pop().logicalOr(hl));
 							break;
+						case "^^":
+							hl = vals.pop();
+							vals.push(vals.pop().logicalXor(hl));
+							break;
 						case "!":
 							vals.push(vals.pop().logicalNot());
 							break;
 						case "~":
 							vals.push(vals.pop().approx());
 							break;
-						case "...":
+						case "..":
 							hl = vals.pop();
 							vals.push(new TRangeIterator(TNumber.from(vals.pop()).integerValue(), TNumber.from(hl).integerValue()));
 							break;
@@ -274,12 +282,19 @@ public class StatementEval {
 							hl = vals.pop();
 							vals.push(new TVariableIterator(Var.from(vals.pop()), IIterable.from(hl)));
 							break;
+						case "of":
+							hl = vals.pop();
+							vals.push(new TVariableIterator(Var.from(vals.pop()), IKeyIterable.from(hl)));
+							break;
 						case "let":
 							if(!vals.isEmpty() && bt == BlockType.CODE) {
 								Val v = vals.peek();
 								if(v.isVariable()) {
 									vals.pop();
 									vals.push(vm.setVariable((Var)v));
+								}
+								else if(v.isContainer()) {
+									vm.setVariables((TContainer)v);
 								}
 							}
 							else {
@@ -336,7 +351,11 @@ public class StatementEval {
 							Console.g.log(vals.isEmpty()?TUndefined.getInstance():vals.peek());
 							break;
 						case "assert":
-							if(vals.isEmpty() || !vals.peek().booleanValue())
+							if(vals.isEmpty()) {
+								Console.g.err("Bad route assertion was made.");
+								break;
+							}
+							if(!vals.peek().booleanValue())
 								Console.g.err("Assertion '"+s+"' was made false.");
 							break;
 						case "error":
@@ -351,6 +370,54 @@ public class StatementEval {
 								((Var)vals.pop()).delete(vm);
 							else
 								Console.g.err("Cannot preform delete on type " + vals.peek().getTypeName());
+							break;
+						case "import":
+							Val v1 = vals.pop();
+							if(v1.isString()) {
+								String path1 = TString.from(v1).get();
+								TContainer included = Include.module(path1);
+								for(String akey : included.getKeys()) {
+									vm.setVariable(new Var(akey, included.get(akey)));
+								}
+							}
+							if(v1.isVariable()) {
+								
+								Module m = StandardModules.get(Var.from(v1).getName());
+								if(m == null) {
+									Console.g.err("Standard module '" + Var.from(v1).getName() + "' does not exist.");
+									break;
+								}
+								vm.setVariable(new Var(Var.from(v1).getName(),Include.module(m)));
+							}
+							break;
+						case "importfrom":
+							String path2 = TString.from(vals.pop()).get();
+							Val o = vals.pop();
+							if(o.isContainer()) {
+								TContainer obj = TContainer.from(o);
+								TContainer included2 = Include.module(path2);
+								for(String key : obj.getKeys()) {
+									if(key.equals("ALL")) {
+										for(String akey : included2.getKeys()) {
+											vm.setVariable(new Var(akey, included2.get(akey)));
+										}
+										break;
+									}
+									Val v = included2.get(key);
+									if(v == null || v == TUndefined.getInstance())
+										Console.g.err("Undefined import '" + key + "' from " + path2);
+									vm.setVariable(new Var(key, v));
+								}
+							}
+							else if(o.isVariable()) {
+								vm.setVariable(Var.from(o.assign(Include.module(path2))));
+							}
+							break;
+						case "export":
+							if(vals.peek().isVariable())
+								vm.pushExport(((Var)vals.pop()));
+							else
+								Console.g.err("Export is not a variable.");
 							break;
 						case "exit":
 							if(vals.isEmpty()) {
@@ -395,7 +462,7 @@ public class StatementEval {
 								Console.g.err("Malformed function definition." + nt);
 							
 							TokenBlock nblock = (TokenBlock)nt;
-							vl.assign(new UserFunc(nblock, TContainer.from(hl)));
+							vl.assign(new TUserFunc(nblock, TContainer.from(hl)));
 							vals.push(new VarDef((Var)vl));
 							break;
 						case "fn":
@@ -404,7 +471,7 @@ public class StatementEval {
 								Console.g.err("Malformed anonymous function definition." + nt);
 							
 							TokenBlock nblock3 = (TokenBlock)nt;
-							vals.push(new UserFunc(nblock3, TContainer.from(hl)));
+							vals.push(new TUserFunc(nblock3, TContainer.from(hl)));
 							break;
 						case "loop":
 							ifChainState = ChainState.FAIL;
@@ -448,37 +515,6 @@ public class StatementEval {
 				case ARG_BLOCK:
 					vals.push(evalArgumentBlock((TokenBlock)t, vm).getResult());
 					break;
-				/*case IF_BLOCK:
-					blockPass = false;
-					if(vals.peek().booleanValue()) {
-						EvalResult res = evalBlock((TokenBlock)t, vm);
-						vals.push(res.getResult());
-						blockPass = true;
-					}
-					break;*/
-				/*case WHILE_BLOCK:
-					//Val r = TUndefined.getInstance();
-					blockPass = false;
-					if(vals.peek().isIterable()) {
-						Iterator<Val> it = IIterable.from(vals.peek()).iterator();
-						while(it.hasNext()) {
-							blockPass = true;
-							it.next();
-							evalBlock((TokenBlock)t, vm);
-						}
-						continue;
-					}
-					else if(vals.peek().booleanValue()) {
-						evalBlock((TokenBlock)t, vm);//.getResult();
-						blockPass = true;
-						//try {Thread.sleep(500);
-						//} catch (InterruptedException e) {e.printStackTrace();}
-						i = -1;
-						this.vals.clear();
-						continue;
-					}
-					
-					break;*/
 			default:
 				break;
 				

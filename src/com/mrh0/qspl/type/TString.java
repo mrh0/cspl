@@ -5,12 +5,14 @@ import java.util.Iterator;
 
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.type.iterator.IIterable;
+import com.mrh0.qspl.type.iterator.IKeyIterable;
+import com.mrh0.qspl.type.iterator.TRangeIterator;
 import com.mrh0.qspl.type.number.TNumber;
 import com.mrh0.qspl.type.var.Var;
 
-public class TString implements Val, IIterable{
+public class TString implements Val, IIterable, IKeyIterable{
 
-	private String value;
+	private final String value;
 	
 	public TString() {
 		value = "";
@@ -152,14 +154,18 @@ public class TString implements Val, IIterable{
 			return (TString)v;
 		if(v instanceof Var && v.isString())
 			return from(((Var)v).get());
-		Console.g.err("Cannot convert " + v.getTypeName() + " to string.");
-		return null;
+		//Console.g.err("Cannot convert " + v.getTypeName() + " to string.");
+		return new TString(v.toString());
+	}
+	
+	public static String string(Val v) {
+		return from(v).get();
 	}
 	
 	@Override
 	public Val assign(Val v) {
 		if(v.isString()) {
-			return TNumber.create(value.matches(TString.from(v).get()));
+			return TNumber.create(value.matches(TString.string(v)));
 		}
 		return Val.super.assign(v);
 	}
@@ -188,6 +194,11 @@ public class TString implements Val, IIterable{
 		return new TStringIterator(this);
 	}
 	
+	@Override
+	public Iterator<Val> keyIterator() {
+		return new TRangeIterator(0, size()-1);
+	}
+	
 	public Val is(Val v) {
 		return new TNumber(TString.class.isInstance(v));
 	}
@@ -195,5 +206,10 @@ public class TString implements Val, IIterable{
 	@Override
 	public int compare(Val v) {
 		return value.compareTo(v.toString());
+	}
+	
+	@Override
+	public int hashCode() {
+		return value.hashCode();
 	}
 }

@@ -3,19 +3,26 @@ package com.mrh0.qspl.type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import com.mrh0.qspl.io.console.Console;
+import com.mrh0.qspl.type.iterator.IIterable;
+import com.mrh0.qspl.type.iterator.IKeyIterable;
 import com.mrh0.qspl.type.number.TNumber;
 import com.mrh0.qspl.type.var.ContainerSubstituteVarIndex;
 import com.mrh0.qspl.type.var.ContainerSubstituteVarKey;
 import com.mrh0.qspl.type.var.Var;
 import com.mrh0.qspl.util.StringUtil;
 
-public class TContainer implements Val{
+public class TContainer implements Val, IIterable, IKeyIterable{
 	
-	private ArrayList<String> keyIndecies;
-	private Map<String, Val> map;
+	private final ArrayList<String> keyIndecies;
+	private final Map<String, Val> map;
 	
 	public TContainer() {
 		keyIndecies = new ArrayList<String>();
@@ -88,7 +95,13 @@ public class TContainer implements Val{
 	public void put(Val v) {
 		if(v.isDefinition()) {
 			Var var = (Var)v;
-			map.put(var.getName(), new Var(var));
+			map.put(var.getName(), var.get());
+			if(!keyIndecies.contains(var.getName()))
+				keyIndecies.add(var.getName());
+		}
+		else if(v.isVariable()) {
+			Var var = (Var)v;
+			map.put(var.getName(), TUndefined.getInstance());
 			if(!keyIndecies.contains(var.getName()))
 				keyIndecies.add(var.getName());
 		}
@@ -155,8 +168,8 @@ public class TContainer implements Val{
 	public Val assign(Val v) {
 		if(v.isContainer()) {
 			TContainer c = TContainer.from(v);
-			for(String key : keyIndecies) {
-				this.put(c.get(key));
+			for(int i = 0; i < keyIndecies.size(); i++) {
+				map.put(keyIndecies.get(i), c.get(keyIndecies.get(i)));
 			}
 			return this;
 		}
@@ -217,5 +230,87 @@ public class TContainer implements Val{
 	@Override
 	public boolean equals(Val v) {
 		return v == this;
+	}
+	
+	public class TContainerIterator implements Iterator<Val> {
+		private TContainer c;
+		private Iterator<String> it;
+		public TContainerIterator(TContainer c) {
+			this.c = c;
+			this.it = c.keyIndecies.iterator();
+		}
+		
+		@Override
+		public boolean hasNext() {
+			return it.hasNext();
+		}
+
+		@Override
+		public Val next() {
+			return c.get(it.next());
+		}
+	}
+	
+	public class TContainerKeyIterator implements Iterator<Val> {
+		private Iterator<String> c;
+		public TContainerKeyIterator(TContainer c) {
+			this.c = c.keyIndecies.iterator();
+		}
+		
+		@Override
+		public boolean hasNext() {
+			return c.hasNext();
+		}
+
+		@Override
+		public Val next() {
+			return new TString(c.next());
+		}
+	}
+
+	@Override
+	public Iterator<Val> iterator() {
+		return new TContainerIterator(this);
+	}
+
+	@Override
+	public Iterator<Val> keyIterator() {
+		return new TContainerKeyIterator(this);
+	}
+	
+	public JSONObject toJSON() {
+		JSONObject o = new JSONObject();
+		for(String key : map.keySet()) {
+			Val vt = map.get(key);
+			if(vt.isContainer())
+				o.put(key, TContainer.from(vt).toJSON());
+			else if(vt.isArray())
+				o.put(key, TArray.from(vt).toJSON());
+			else if(vt.isNumber())
+				o.put(key, TNumber.from(vt).get());
+			else if(vt.isString())
+				o.put(key, TString.from(vt).get());
+			else
+				o.put(key, vt.toString());
+		}
+		return o;
+	}
+	
+	public static TContainer fromJSON(JSONObject j) {
+		TContainer o = new TContainer();
+		for(String key : j.keySet()) {
+			Object i = j.get(key);
+			if(i instanceof JSONObject)
+				o.put(key, TContainer.fromJSON((JSONObject)i));
+			else if(i instanceof JSONArray)
+				o.put(key, TArray.fromJSON((JSONArray)i));
+			else if(i instanceof Double)
+				o.put(key, new TNumber((double)i));
+			else if(i instanceof Integer)
+				o.put(key, new TNumber((int)i));
+			else
+				o.put(key, new TString(i.toString()));
+		}
+		return o;
 	}
 }

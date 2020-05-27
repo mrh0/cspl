@@ -1,15 +1,11 @@
 package com.mrh0.qspl;
 
-import com.mrh0.qspl.internal.ExtMath;
-import com.mrh0.qspl.internal.ExtUtil;
 import com.mrh0.qspl.interpreter.Interpreter;
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.io.file.Read;
 import com.mrh0.qspl.tokenizer.Tokenizer;
 import com.mrh0.qspl.util.TimeUtil;
 import com.mrh0.qspl.vm.VM;
-import com.mrh0.qspl.vm.module.Include;
-import com.mrh0.qspl.vm.queue.EvalQueue;
 
 public class QSPL {
 	private VM vm;
@@ -24,8 +20,10 @@ public class QSPL {
 		
 		vm = new VM();
 		
-		vm.include(Include.fromModule(new ExtMath()));
-		vm.include(Include.fromModule(new ExtUtil()));
+		/*vm.include(Include.module(new ExtMath()));
+		vm.include(Include.module(new ExtUtil()));
+		vm.include(Include.module(new ExtConcurrency()));
+		vm.include(Include.module(new ExtJSON()));*/
 		
 		/*long start2 = TimeUtil.getMilis();
 		double i=0d;

@@ -299,7 +299,7 @@ public class Tokens {
 				
 			case "#":
 				return 13;
-			case "...":
+			case "..":
 				return 12;
 			case "<-":
 				return 12;
@@ -359,6 +359,8 @@ public class Tokens {
 				return 3;
 			case "||":
 				return 2;
+			case "^^":
+				return 2;
 			
 			case "=":
 				return 0;
@@ -398,7 +400,7 @@ public class Tokens {
 				return true;
 			case "%=":
 				return true;
-			case "...":
+			case "..":
 				return true;
 			case "is":
 				return true;

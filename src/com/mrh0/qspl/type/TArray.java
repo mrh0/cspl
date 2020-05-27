@@ -3,43 +3,46 @@ package com.mrh0.qspl.type;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
+import org.json.JSONArray;
+import org.json.JSONObject;
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.type.iterator.IIterable;
+import com.mrh0.qspl.type.iterator.IKeyIterable;
+import com.mrh0.qspl.type.iterator.TRangeIterator;
 import com.mrh0.qspl.type.number.TNumber;
 import com.mrh0.qspl.type.var.Var;
 
-public class TArray implements Val, IIterable{
+public class TArray implements Val, IIterable, IKeyIterable{
 	
-	ArrayList<Var> values;
+	protected final ArrayList<Val> values;
 	
 	public TArray() {
-		values = new ArrayList<Var>();
+		this.values = new ArrayList<Val>();
 	}
 	
 	public TArray(Iterable<Val> it) {
-		values = new ArrayList<Var>();
+		this.values = new ArrayList<Val>();
 		for(Val v : it)
 			this.add(v);
+	}
+	
+	public TArray(ArrayList<Val> vals) {
+		this.values = new ArrayList<Val>();
+		for(int i = 0; i < vals.size(); i++) {
+			this.values.add(vals.get(i));
+		}
+	}
+	
+	public TArray(String...strs) {
+		this.values = new ArrayList<Val>();
+		for(int i = 0; i < strs.length; i++) {
+			this.add(new TString(strs[i]));
+		}
 	}
 	
 	@Override
 	public TAtom getTypeAtom() {
 		return TAtom.get("array");
-	}
-	
-	public TArray(ArrayList<Var> values) {
-		values = new ArrayList<Var>();
-		for(int i = 0; i < values.size(); i++) {
-			this.values.set(i, new Var(values.get(i)));
-		}
-	}
-	
-	public TArray(String...strs) {
-		values = new ArrayList<Var>();
-		for(int i = 0; i < strs.length; i++) {
-			this.add(new TString(strs[i]));
-		}
 	}
 
 	@Override
@@ -47,7 +50,7 @@ public class TArray implements Val, IIterable{
 		StringBuilder sb = new StringBuilder();
 		sb.append("[");
 		for(int i = 0; i < values.size(); i++) {
-			sb.append(values.get(i).get());
+			sb.append(values.get(i));
 			if(i+1 < values.size())
 				sb.append(", ");
 		}
@@ -80,7 +83,7 @@ public class TArray implements Val, IIterable{
 		return values;
 	}
 	
-	public Var get(int i) {
+	public Val get(int i) {
 		return values.get(i < 0?size()+i:i);
 	}
 	
@@ -126,7 +129,7 @@ public class TArray implements Val, IIterable{
 		if(v.isString()) {
 			StringBuilder sb = new StringBuilder();
 			for(int i = 0; i < values.size(); i++) {
-				sb.append(get(i).get());
+				sb.append(get(i));
 				if(i+1 < values.size())
 					sb.append(TString.from(v).get());
 			}
@@ -216,7 +219,7 @@ public class TArray implements Val, IIterable{
 	}
 	
 	public class TArrayIterator implements Iterator<Val> {
-		private Iterator<Var> a;
+		private Iterator<Val> a;
 		public TArrayIterator(TArray a) {
 			this.a = a.values.iterator();
 		}
@@ -228,13 +231,18 @@ public class TArray implements Val, IIterable{
 
 		@Override
 		public Val next() {
-			return a.next().get();
+			return a.next();
 		}
 	}
 
 	@Override
 	public Iterator<Val> iterator() {
 		return new TArrayIterator(this);
+	}
+	
+	@Override
+	public Iterator<Val> keyIterator() {
+		return new TRangeIterator(0, size()-1);
 	}
 	
 	public void remove(int i) {
@@ -292,5 +300,40 @@ public class TArray implements Val, IIterable{
 		for(Val v : a) {
 			add(v);
 		}
+	}
+	
+	public JSONArray toJSON() {
+		JSONArray o = new JSONArray();
+		for(int i = 0; i < values.size(); i++) {
+			Val vt = values.get(i);
+			if(vt.isContainer())
+				o.put(i, TContainer.from(vt).toJSON());
+			else if(vt.isArray())
+				o.put(i, TArray.from(vt).toJSON());
+			else if(vt.isNumber())
+				o.put(i, TNumber.from(vt).get());
+			else if(vt.isString())
+				o.put(i, TString.from(vt).get());
+			else
+				o.put(i, vt.toString());
+		}
+		return o;
+	}
+	
+	public static TArray fromJSON(JSONArray j) {
+		TArray o = new TArray();
+		for(Object i : j.toList()) {
+			if(i instanceof JSONObject)
+				o.push(new TContainer().fromJSON((JSONObject)i));
+			else if(i instanceof JSONArray)
+				o.push(new TArray().fromJSON((JSONArray)i));
+			else if(i instanceof Double)
+				o.push(new TNumber((double)i));
+			else if(i instanceof Integer)
+				o.push(new TNumber((int)i));
+			else
+				o.push(new TString(i.toString()));
+		}
+		return o;
 	}
 }

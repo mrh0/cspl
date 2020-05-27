@@ -5,25 +5,34 @@ import java.util.List;
 
 import com.mrh0.qspl.io.console.Console;
 import com.mrh0.qspl.type.iterator.IIterable;
+import com.mrh0.qspl.type.iterator.IKeyIterable;
 import com.mrh0.qspl.type.number.TNumber;
 import com.mrh0.qspl.type.var.ISubstituteVar;
 import com.mrh0.qspl.type.var.Var;
 
 public interface Val {
+	
 	@Deprecated
 	public default int getType() {return 0;};
+	
 	@Deprecated
 	public default Val duplicate() {return this;};
-	public boolean booleanValue();
+	
+	public default boolean booleanValue() {
+		return true;
+	}
+	
 	public String getTypeName();
+	
 	@Deprecated
 	public default Object getValue() {
 		return this;
 	}
 	
-	public TAtom getTypeAtom();
+	public default TAtom getTypeAtom() {
+		return TAtom.get(this.getTypeName());
+	}
 	
-	//Defaults:
 	public default boolean isUndefined() {
 		return false;
 	}
@@ -68,6 +77,10 @@ public interface Val {
 		return this instanceof IIterable;
 	}
 	
+	public default boolean isKeyIterable() {
+		return this instanceof IKeyIterable;
+	}
+	
 	public default boolean isDefinition() {
 		return false;
 	}
@@ -77,22 +90,27 @@ public interface Val {
 		Console.g.err("Cannot preform operation add on " + this.getTypeName() + " with " + v.getTypeName());
 		return TUndefined.getInstance();
 	}
+	
 	public default Val sub(Val v) {
 		Console.g.err("Cannot preform operation subtract on " + this.getTypeName() + " with " + v.getTypeName());
 		return TUndefined.getInstance();
 	}
+	
 	public default Val multi(Val v) {
 		Console.g.err("Cannot preform operation multiply on " + this.getTypeName() + " with " + v.getTypeName());
 		return TUndefined.getInstance();
 	}
+	
 	public default Val div(Val v) {
 		Console.g.err("Cannot preform operation divide on " + this.getTypeName() + " with " + v.getTypeName());
 		return TUndefined.getInstance();
 	}
+	
 	public default Val mod(Val v) {
 		Console.g.err("Cannot preform operation modulo on " + this.getTypeName() + " with " + v.getTypeName());
 		return TUndefined.getInstance();
 	}
+	
 	public default Val pow(Val v) {
 		Console.g.err("Cannot preform operation powerof on " + this.getTypeName() + " with " + v.getTypeName());
 		return TUndefined.getInstance();
@@ -106,23 +124,25 @@ public interface Val {
 	}
 	
 	public default Val is(Val v) {
-		//Console.g.err("Cannot preform operation is on " + this.getTypeName() + " with " + v.getTypeName());
 		return TNumber.create(this.getClass().isInstance(v));
-		//return TUndefined.getInstance();
 	}
 	
 	public default Val logicalAnd(Val v) {
 		return TNumber.create(this.booleanValue() && v.booleanValue());
 	}
+	
 	public default Val logicalOr(Val v) {
 		return this.booleanValue()?this:v;
 	}
+	
 	public default Val logicalXor(Val v) {
 		return this.booleanValue()?(v.booleanValue()?TNumber.create(false):this):v;
 	}
+	
 	public default Val logicalNot() {
 		return TNumber.create(!this.booleanValue());
 	}
+	
 	public default Val approx() {
 		Console.g.err("Cannot preform operation approximate on " + this.getTypeName());
 		return TUndefined.getInstance();
@@ -132,10 +152,12 @@ public interface Val {
 		Console.g.err("Cannot preform operation bitwise-and on " + this.getTypeName() + " with " + v.getTypeName());
 		return TUndefined.getInstance();
 	}
+	
 	public default Val bitwiseOr(Val v) {
 		Console.g.err("Cannot preform operation bitwise-or on " + this.getTypeName() + " with " + v.getTypeName());
 		return TUndefined.getInstance();
 	}
+	
 	public default Val bitwiseXor(Val v) {
 		Console.g.err("Cannot preform operation bitwise-xor on " + this.getTypeName() + " with " + v.getTypeName());
 		return TUndefined.getInstance();
@@ -145,14 +167,17 @@ public interface Val {
 		Console.g.err("Cannot preform operation shift-left on " + this.getTypeName() + " with " + v.getTypeName());
 		return TUndefined.getInstance();
 	}
+	
 	public default Val shiftRight(Val v) {
 		Console.g.err("Cannot preform operation shift-right on " + this.getTypeName() + " with " + v.getTypeName());
 		return TUndefined.getInstance();
 	}
+	
 	public default Val rotateLeft(Val v) {
 		Console.g.err("Cannot preform operation rotate-left on " + this.getTypeName() + " with " + v.getTypeName());
 		return TUndefined.getInstance();
 	}
+	
 	public default Val rotateRight(Val v) {
 		Console.g.err("Cannot preform operation rotate-right on " + this.getTypeName() + " with " + v.getTypeName());
 		return TUndefined.getInstance();
@@ -208,6 +233,13 @@ public interface Val {
 	public default Val accessor(List<Val> args) {
 		Console.g.err("Cannot preform operation accessor with " + args.size() + (args.size()==1?" argument on ":" arguments on ") + this.getTypeName());
 		return TUndefined.getInstance();
+	}
+	
+	public static String simplifyOneArgumentAccessor(Val on, List<Val> args) {
+		if(args.size() == 1)
+			return TString.string(args.get(0));
+		Console.g.err("Cannot preform operation accessor with " + args.size() + (args.size()==1?" argument on ":" arguments on ") + on.getTypeName());
+		return null;
 	}
 	
 	public static Val prim(Val v) {

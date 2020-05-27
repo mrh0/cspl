@@ -11,6 +11,7 @@ import com.mrh0.qspl.type.Val;
 import com.mrh0.qspl.type.func.Arguments;
 import com.mrh0.qspl.type.var.Var;
 import com.mrh0.qspl.vm.queue.EvalQueue;
+import com.mrh0.qspl.vm.queue.QueueEntry;
 import com.mrh0.qspl.vm.scope.Scope;
 import com.mrh0.qspl.vm.scope.Scope.Policy;
 
@@ -113,6 +114,13 @@ public class VM {
 		v.assign(args);
 	}
 	
+	public void setVariablesSimple(TContainer c, Arguments a) {
+		for(int i = 0; i < Math.min(a.size(), c.size()); i++) {
+			Var v = defVariable(c.getKeys().get(i));
+			v.assign(a.get(i));
+		}
+	}
+	
 	public void pushScope(Scope scope) {
 		scopeStack.push(scope);
 	}
@@ -133,6 +141,10 @@ public class VM {
 		return exports;
 	}
 	
+	public void pushExport(Var v) {
+		exports.put(v.getName(), v.get());
+	}
+	
 	public void setPreviousResult(Val v) {
 		this.previous = v;
 	}
@@ -147,5 +159,17 @@ public class VM {
 	 
 	 public void stopQueue() {
 		 queue.stop();
+	 }
+	 
+	 public void spawnExec(QueueEntry qe) {
+		 queue.spawn(qe);
+	 }
+	 
+	 public void cancelExec(QueueEntry qe) {
+		 queue.cancel(qe);
+	 }
+	 
+	 public void triggerExec(QueueEntry qe) {
+		 queue.trigger(qe);;
 	 }
 }

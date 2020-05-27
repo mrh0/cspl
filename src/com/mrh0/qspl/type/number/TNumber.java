@@ -9,8 +9,7 @@ import com.mrh0.qspl.type.var.Var;
 
 public class TNumber implements Val{
 
-	private static int typeId;
-	private double value;
+	private final double value;
 	
 	public TNumber() {
 		value = 0;
@@ -47,11 +46,6 @@ public class TNumber implements Val{
 	
 	public TNumber(String val) {
 		value = Double.parseDouble(val);
-	}
-	
-	@Override
-	public int getType() {
-		return typeId;
 	}
 	
 	@Override
@@ -230,6 +224,14 @@ public class TNumber implements Val{
 			return from(((Var)v).get());
 		Console.g.err("Cannot convert " + v.getTypeName() + " to number.");
 		return null;
+	}
+	
+	public static int integer(Val v) {
+		return from(v).integerValue();
+	}
+	
+	public static double number(Val v) {
+		return from(v).get();
 	}
 	
 	public static TNumber create(double n) {
