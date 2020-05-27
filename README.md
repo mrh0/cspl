@@ -25,7 +25,7 @@ j = j + 5; //j = 16
 CONSTANTVALUE = 5; //Constant when variable name is all capital letters
 
 
-out "Hello World"; //Prints 'e' to out stream.
+out "Hello World"; //Hello World
 error "An Error Message"; //Prints message to error stream.
 assert condition; //Prints assertion error if the variable condition is false.
 
