@@ -156,13 +156,13 @@ obj = new {a=1, b=new{a=3}, x=4}; //Creates object with elements : {a=1, b={a=3}
 //Operate:
 obj["a"]; //Get element 'a' : 1
 obj["a", "b"]; //Get array : [1, {a=3}]
-obj.a; //Get element 'a' : 1
+obj#a; //Get element 'a' : 1
 obj[]; //Get first depth size : 2;
 obj + new{y=7}; //Join objects : {a=1, b=new{a=3}, x=4, y=7}
 obj ? 1 //Object contains  1 : true
 obj#keys[] ? "a" //Object has key 'a' : true
 obj["a"] = 2; // Assigning value 2 to object at key "a"
-obj.a = 3; // Assigning value 3 to object at key "a"
+obj#a = 3; // Assigning value 3 to object at key "a"
 
 //Functions:
 obj#add["g", "text"]; //Adds element to object : {a=3, b={a=3}, x=4, y=7, g="text"}
@@ -174,7 +174,7 @@ obj = new {}#fromJSON["{'x':5}"] //Object from json : {x=5}
 Flow control:
 ```
 //If x print 'Hello!'
-x:
+if x:
   out "Hello!";
 else y:
   out "x was not true but y was";
