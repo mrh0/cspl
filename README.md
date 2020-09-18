@@ -59,7 +59,7 @@ arr = new [1,2,3,4];
 func x3[val, index, array]:
   exit (val+1);
 out arr#map[x3]; //Prints [2,3,4,5]
-out arr#map[[o, i, a] => {o+1}]; //Prints [2,3,4,5]
+out arr#map[fn[o, i, a] {o+1}]; //Prints [2,3,4,5]
 
 //Anonymous function:
 x4 = fn[x]{x*4};
